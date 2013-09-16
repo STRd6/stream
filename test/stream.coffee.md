@@ -1,4 +1,4 @@
-    Stream = require('/stream')
+    Stream = require('/main')
 
     describe "Stream", ->
       it "should be like a list", ->
