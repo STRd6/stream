@@ -17,3 +17,11 @@
         stream = Stream(0, ->Stream(1, ->Stream(2))).map (i) -> i * i
         
         assert.equal 4, stream.get(2)
+
+      it "should be enumerable by each", ->
+        called = 0
+        
+        stream = Stream(0, ->Stream(1, ->Stream(2))).each ->
+          called += 1
+        
+        assert.equal 3, called

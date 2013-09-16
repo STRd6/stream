@@ -23,8 +23,8 @@ Invoke a function for each item in a stream.
 
         each: (fn) ->
           fn(self.first())
-          each(self.rest(), fn)
-    
+          rest().each(fn)
+
           self
 
 Transform a stream
@@ -47,6 +47,38 @@ A distinguishable object representing the empty stream.
 Export
 
     module.exports = Stream
+
+Notes
+-----
+
+Passing in the second argument as a function to be evaluated later is a little
+tough on the user interface. The solution may be to provide helpers or higher
+levels of abstraction so that we don't have to mess with streams directly,
+just create them from various other sources like text, lists, ajax requests,
+generator functions, etc. and be able to pipe them together in a signal flow
+style.
+
+Another thing to explore is promises/deferreds and using those as our piping
+interface.
+
+The primary use case in my mind is something like:
+
+>     +----------+                        +-----+                    +------+                   +--------+                        +------+
+>     |FileReader| -> Character Stream -> |Lexer| -> Token Stream -> |Parser| -> Node Stream -> |Compiler| -> Character Stream -> |STDOUT|
+>     +----------+                        +-----+                    +------+                   +--------+                        +------+
+>          |                                 |                          |                           |
+>          v                                 v                          v                           v                             +------+
+>          +---------------------------------+--------------------------+---------------------------+------------------------- -> |STDERR|
+>                                                                                                                                 +------+
+
+Which could be connected something like:
+
+>     reader
+>     .out(lexer)
+>     .out(parser)
+>     .out(compiler)
+>     .out(STDOUT)
+>     .err(STDERR)
 
 Resources
 ---------
