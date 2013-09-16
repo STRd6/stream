@@ -21,7 +21,7 @@
     "test/stream.coffee.md": {
       "path": "test/stream.coffee.md",
       "mode": "100644",
-      "content": "    Stream = require('/stream')\n\n    describe \"Stream\", ->\n      it \"should be like a list\", ->\n        stream = Stream(1)\n        \n        assert.equal 1, stream.first()\n",
+      "content": "    Stream = require('/main')\n\n    describe \"Stream\", ->\n      it \"should be like a list\", ->\n        stream = Stream(1)\n        \n        assert.equal 1, stream.first()\n",
       "type": "blob"
     }
   },
@@ -33,7 +33,7 @@
     },
     "test/stream": {
       "path": "test/stream",
-      "content": "(function() {\n  var Stream;\n\n  Stream = require('/stream');\n\n  describe(\"Stream\", function() {\n    return it(\"should be like a list\", function() {\n      var stream;\n      stream = Stream(1);\n      return assert.equal(1, stream.first());\n    });\n  });\n\n}).call(this);\n",
+      "content": "(function() {\n  var Stream;\n\n  Stream = require('/main');\n\n  describe(\"Stream\", function() {\n    return it(\"should be like a list\", function() {\n      var stream;\n      stream = Stream(1);\n      return assert.equal(1, stream.first());\n    });\n  });\n\n}).call(this);\n",
       "type": "blob"
     }
   },
