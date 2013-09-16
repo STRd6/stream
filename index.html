@@ -1,0 +1,64 @@
+<!doctype html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<script class="env" src="//cdnjs.cloudflare.com/ajax/libs/coffee-script/1.6.3/coffee-script.min.js"></script>
+<script class="env" src="//code.jquery.com/jquery-1.10.1.min.js"></script>
+<script class="env" src="//d1n0x3qji82z53.cloudfront.net/src-min-noconflict/ace.js"></script>
+<script class="env" src="http://strd6.github.io/tempest/javascripts/envweb.js"></script>
+<script class="env" src="http://strd6.github.io/sandbox/master.js"></script>
+<script class="env" src="http://strd6.github.io/tests/master.js"></script>
+<script class="env" src="http://strd6.github.io/require/master.js?01"></script>
+</head>
+<body>
+<script>ENV = {
+  "source": {
+    "LICENSE": {
+      "path": "LICENSE",
+      "mode": "100644",
+      "content": "The MIT License (MIT)\n\nCopyright (c) 2013 Daniel X Moore\n\nPermission is hereby granted, free of charge, to any person obtaining a copy of\nthis software and associated documentation files (the \"Software\"), to deal in\nthe Software without restriction, including without limitation the rights to\nuse, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of\nthe Software, and to permit persons to whom the Software is furnished to do so,\nsubject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in all\ncopies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS\nFOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR\nCOPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER\nIN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN\nCONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.\n",
+      "type": "blob"
+    },
+    "README.md": {
+      "path": "README.md",
+      "mode": "100644",
+      "content": "stream\n======\n\nLearning about streams\n",
+      "type": "blob"
+    },
+    "main.coffee.md": {
+      "path": "main.coffee.md",
+      "mode": "100644",
+      "content": "Stream\n======\n\nHere I will learn about streams using interactive models.\n\n>     Stream\n\n>     Stream(1, 2, 3)\n\n>     stream = Stream.repeat(1)\n>     stream.take()\n>     .then (value) ->\n\nA distinguishable object representing the empty stream.\n\n    emptyStream =\n      null: true\n\nGet an element from a stream at position `n`\n\n    get = (stream, n) ->\n      if n is 0\n        stream.first()\n      else\n        get(stream.rest(), n - 1)\n\nTransform a stream\n\n    map = (stream, fn) ->\n      if stream.null\n        emptyStream\n      else\n        Stream(\n          fn(stream.first()),\n          map(stream.rest(), fn)\n        )\n\nInvoke a function for each item in a stream.\n\n    each = (stream, fn) ->\n      unless stream.null\n        fn(stream.first())\n        each(stream.rest(), fn)\n\n      stream\n\nConstruct a stream\n\n    Stream = (first, rest) ->\n      delayed = ->\n        rest\n\n      first: ->\n        first\n      rest: ->\n        delayed()\n\nExport\n\n    module.exports = Stream\n",
+      "type": "blob"
+    },
+    "test/stream.coffee.md": {
+      "path": "test/stream.coffee.md",
+      "mode": "100644",
+      "content": "    Stream = require('/stream')\n\n    describe \"Stream\", ->\n      it \"should be like a list\", ->\n        stream = Stream(1)\n        \n        assert.equal 1, stream.first()\n",
+      "type": "blob"
+    }
+  },
+  "distribution": {
+    "main": {
+      "path": "main",
+      "content": "(function() {\n  var Stream, each, emptyStream, get, map;\n\n  emptyStream = {\n    \"null\": true\n  };\n\n  get = function(stream, n) {\n    if (n === 0) {\n      return stream.first();\n    } else {\n      return get(stream.rest(), n - 1);\n    }\n  };\n\n  map = function(stream, fn) {\n    if (stream[\"null\"]) {\n      return emptyStream;\n    } else {\n      return Stream(fn(stream.first()), map(stream.rest(), fn));\n    }\n  };\n\n  each = function(stream, fn) {\n    if (!stream[\"null\"]) {\n      fn(stream.first());\n      each(stream.rest(), fn);\n    }\n    return stream;\n  };\n\n  Stream = function(first, rest) {\n    var delayed;\n    delayed = function() {\n      return rest;\n    };\n    return {\n      first: function() {\n        return first;\n      },\n      rest: function() {\n        return delayed();\n      }\n    };\n  };\n\n  module.exports = Stream;\n\n}).call(this);\n",
+      "type": "blob"
+    },
+    "test/stream": {
+      "path": "test/stream",
+      "content": "(function() {\n  var Stream;\n\n  Stream = require('/stream');\n\n  describe(\"Stream\", function() {\n    return it(\"should be like a list\", function() {\n      var stream;\n      stream = Stream(1);\n      return assert.equal(1, stream.first());\n    });\n  });\n\n}).call(this);\n",
+      "type": "blob"
+    }
+  },
+  "entryPoint": "main",
+  "dependencies": {},
+  "repository": {
+    "full_name": "STRd6/stream",
+    "branch": "master"
+  },
+  "progenitor": {
+    "url": "http://strd6.github.io/editor/"
+  }
+};</script>
+<script>require('./main')</script>
+</body>
+</html>
