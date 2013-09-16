@@ -63,6 +63,8 @@ interface.
 
 The primary use case in my mind is something like:
 
+>     ###
+>
 >     +----------+                        +-----+                    +------+                   +--------+                        +------+
 >     |FileReader| -> Character Stream -> |Lexer| -> Token Stream -> |Parser| -> Node Stream -> |Compiler| -> Character Stream -> |STDOUT|
 >     +----------+                        +-----+                    +------+                   +--------+                        +------+
@@ -70,6 +72,7 @@ The primary use case in my mind is something like:
 >          v                                 v                          v                           v                             +------+
 >          +---------------------------------+--------------------------+---------------------------+------------------------- -> |STDERR|
 >                                                                                                                                 +------+
+>     ###
 
 Which could be connected something like:
 
