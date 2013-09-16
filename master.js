@@ -1,47 +1,46 @@
 (function() {
-  var Stream, each, emptyStream, get, map;
-
-  emptyStream = {
-    "null": true
-  };
-
-  get = function(stream, n) {
-    if (n === 0) {
-      return stream.first();
-    } else {
-      return get(stream.rest(), n - 1);
-    }
-  };
-
-  map = function(stream, fn) {
-    if (stream["null"]) {
-      return emptyStream;
-    } else {
-      return Stream(fn(stream.first()), map(stream.rest(), fn));
-    }
-  };
-
-  each = function(stream, fn) {
-    if (!stream["null"]) {
-      fn(stream.first());
-      each(stream.rest(), fn);
-    }
-    return stream;
-  };
+  var Stream, emptyStream;
 
   Stream = function(first, rest) {
-    var delayed;
-    delayed = function() {
-      return rest;
-    };
-    return {
+    var self;
+    if (rest == null) {
+      rest = function() {
+        return emptyStream;
+      };
+    }
+    return self = {
       first: function() {
         return first;
       },
-      rest: function() {
-        return delayed();
+      rest: rest,
+      get: function(n) {
+        if (n === 0) {
+          return self.first();
+        } else {
+          return rest().get(n - 1);
+        }
+      },
+      each: function(fn) {
+        fn(self.first());
+        each(self.rest(), fn);
+        return self;
+      },
+      map: function(fn) {
+        return Stream(fn(self.first()), function() {
+          return rest().map(fn);
+        });
       }
     };
+  };
+
+  emptyStream = {
+    map: function() {
+      return emptyStream;
+    },
+    each: function() {
+      return emptyStream;
+    },
+    get: function() {}
   };
 
   module.exports = Stream;
