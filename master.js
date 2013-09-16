@@ -22,7 +22,7 @@
       },
       each: function(fn) {
         fn(self.first());
-        each(self.rest(), fn);
+        rest().each(fn);
         return self;
       },
       map: function(fn) {
