@@ -5,8 +5,6 @@
 <script class="env" src="//code.jquery.com/jquery-1.10.1.min.js"></script>
 <script class="env" src="//d1n0x3qji82z53.cloudfront.net/src-min-noconflict/ace.js"></script>
 <script class="env" src="http://strd6.github.io/tempest/javascripts/envweb.js"></script>
-<script class="env" src="http://strd6.github.io/sandbox/master.js"></script>
-<script class="env" src="http://strd6.github.io/tests/master.js"></script>
 <script class="env" src="http://strd6.github.io/require/master.js?01"></script>
 </head>
 <body>
@@ -33,7 +31,7 @@
     "test/stream.coffee.md": {
       "path": "test/stream.coffee.md",
       "mode": "100644",
-      "content": "    Stream = require('/stream')\n\n    describe \"Stream\", ->\n      it \"should be like a list\", ->\n        stream = Stream(1)\n        \n        assert.equal 1, stream.first()\n",
+      "content": "    Stream = require('/main')\n\n    describe \"Stream\", ->\n      it \"should be like a list\", ->\n        stream = Stream(1)\n        \n        assert.equal 1, stream.first()\n",
       "type": "blob"
     }
   },
@@ -45,7 +43,7 @@
     },
     "test/stream": {
       "path": "test/stream",
-      "content": "(function() {\n  var Stream;\n\n  Stream = require('/stream');\n\n  describe(\"Stream\", function() {\n    return it(\"should be like a list\", function() {\n      var stream;\n      stream = Stream(1);\n      return assert.equal(1, stream.first());\n    });\n  });\n\n}).call(this);\n",
+      "content": "(function() {\n  var Stream;\n\n  Stream = require('/main');\n\n  describe(\"Stream\", function() {\n    return it(\"should be like a list\", function() {\n      var stream;\n      stream = Stream(1);\n      return assert.equal(1, stream.first());\n    });\n  });\n\n}).call(this);\n",
       "type": "blob"
     }
   },
