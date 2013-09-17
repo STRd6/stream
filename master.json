@@ -23,6 +23,18 @@
       "mode": "100644",
       "content": "    Stream = require('/main')\n\n    describe \"Stream\", ->\n      it \"should be like a list\", ->\n        stream = Stream(1)\n        \n        assert.equal 1, stream.first()\n\n      it \"should be able to have a couple items\", ->\n      \n        stream = Stream(0, ->Stream(1))\n        \n        assert.equal 0, stream.get(0), \"First item is 0\"\n        assert.equal 1, stream.get(1), \"Second item is 1\"\n\n      it \"should be able to map\", ->\n        stream = Stream(0, ->Stream(1, ->Stream(2))).map (i) -> i * i\n        \n        assert.equal 4, stream.get(2)\n\n      it \"should be enumerable by each\", ->\n        called = 0\n        \n        stream = Stream(0, ->Stream(1, ->Stream(2))).each ->\n          called += 1\n        \n        assert.equal 3, called\n",
       "type": "blob"
+    },
+    "process.coffee.md": {
+      "path": "process.coffee.md",
+      "mode": "100644",
+      "content": "Process\n=======\n\nA process receives data from input and writes data to output and optionally errput.\n\nJust exploring some unix-y concepts in JS land.\n\n    StringStreamer = (output, errput=output) ->\n\n      (string) ->\n        string.split('').map output\n\n    Tokenizer = (output, errput=output) ->\n      word = \"\"\n\n      (character) ->\n        if character.match /\\s/\n          if word\n            output\n              type: \"word\"\n              value: word\n\n            word = \"\"\n        else\n          word += character\n\n    Object.extend exports,\n      StringStreamer: StringStreamer\n      Tokenizer: Tokenizer\n",
+      "type": "blob"
+    },
+    "test/process.coffee": {
+      "path": "test/process.coffee",
+      "mode": "100644",
+      "content": "{StringStreamer, Tokenizer} = require('/process')\n\ndescribe \"StringStreamer\", ->\n  it \"should convert strings into streams of characters\", ->\n    chars = []\n\n    output = (c) ->\n      assert.equal c, \"a\"\n      chars.push c\n\n    (StringStreamer output) \"aaaaaaa\"\n    \n    assert.equal chars.length, 7\n\ndescribe \"Process streams\", ->\n  \n  it \"Should output a stream of tokens\", ->\n    tokens = []\n\n    output = (token) ->\n      tokens.push token\n\n    (StringStreamer Tokenizer output) \"\"\"\n      this is pretty cool\\n\n    \"\"\"\n    \n    console.log tokens\n    \n    assert.equal tokens.length, 4, \"Tokens: #{tokens.length}\"\n",
+      "type": "blob"
     }
   },
   "distribution": {
@@ -34,6 +46,16 @@
     "test/stream": {
       "path": "test/stream",
       "content": "(function() {\n  var Stream;\n\n  Stream = require('/main');\n\n  describe(\"Stream\", function() {\n    it(\"should be like a list\", function() {\n      var stream;\n      stream = Stream(1);\n      return assert.equal(1, stream.first());\n    });\n    it(\"should be able to have a couple items\", function() {\n      var stream;\n      stream = Stream(0, function() {\n        return Stream(1);\n      });\n      assert.equal(0, stream.get(0), \"First item is 0\");\n      return assert.equal(1, stream.get(1), \"Second item is 1\");\n    });\n    it(\"should be able to map\", function() {\n      var stream;\n      stream = Stream(0, function() {\n        return Stream(1, function() {\n          return Stream(2);\n        });\n      }).map(function(i) {\n        return i * i;\n      });\n      return assert.equal(4, stream.get(2));\n    });\n    return it(\"should be enumerable by each\", function() {\n      var called, stream;\n      called = 0;\n      stream = Stream(0, function() {\n        return Stream(1, function() {\n          return Stream(2);\n        });\n      }).each(function() {\n        return called += 1;\n      });\n      return assert.equal(3, called);\n    });\n  });\n\n}).call(this);\n",
+      "type": "blob"
+    },
+    "process": {
+      "path": "process",
+      "content": "(function() {\n  var StringStreamer, Tokenizer;\n\n  StringStreamer = function(output, errput) {\n    if (errput == null) {\n      errput = output;\n    }\n    return function(string) {\n      return string.split('').map(output);\n    };\n  };\n\n  Tokenizer = function(output, errput) {\n    var word;\n    if (errput == null) {\n      errput = output;\n    }\n    word = \"\";\n    return function(character) {\n      if (character.match(/\\s/)) {\n        if (word) {\n          output({\n            type: \"word\",\n            value: word\n          });\n          return word = \"\";\n        }\n      } else {\n        return word += character;\n      }\n    };\n  };\n\n  Object.extend(exports, {\n    StringStreamer: StringStreamer,\n    Tokenizer: Tokenizer\n  });\n\n}).call(this);\n",
+      "type": "blob"
+    },
+    "test/process": {
+      "path": "test/process",
+      "content": "(function() {\n  var StringStreamer, Tokenizer, _ref;\n\n  _ref = require('/process'), StringStreamer = _ref.StringStreamer, Tokenizer = _ref.Tokenizer;\n\n  describe(\"StringStreamer\", function() {\n    return it(\"should convert strings into streams of characters\", function() {\n      var chars, output;\n      chars = [];\n      output = function(c) {\n        assert.equal(c, \"a\");\n        return chars.push(c);\n      };\n      (StringStreamer(output))(\"aaaaaaa\");\n      return assert.equal(chars.length, 7);\n    });\n  });\n\n  describe(\"Process streams\", function() {\n    return it(\"Should output a stream of tokens\", function() {\n      var output, tokens;\n      tokens = [];\n      output = function(token) {\n        return tokens.push(token);\n      };\n      (StringStreamer(Tokenizer(output)))(\"this is pretty cool\\n\");\n      console.log(tokens);\n      return assert.equal(tokens.length, 4, \"Tokens: \" + tokens.length);\n    });\n  });\n\n}).call(this);\n",
       "type": "blob"
     }
   },
