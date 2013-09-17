@@ -40,7 +40,7 @@ require('./main')
     "process.coffee.md": {
       "path": "process.coffee.md",
       "mode": "100644",
-      "content": "Process\n=======\n\nA process receives data from input and writes data to output and optionally errput.\n\nJust exploring some unix-y concepts in JS land.\n\n    StringStreamer = (output, errput=output) ->\n\n      (string) ->\n        string.split('').map output\n        \n    T = (output, errput=output) ->\n      (atom) ->\n        console.log atom\n        output atom\n\n    Tokenizer = (output, errput=output) ->\n      word = \"\"\n\n      (character) ->\n        if character.match /\\s/\n          if word\n            output\n              type: \"word\"\n              value: word\n\n            word = \"\"\n        else\n          word += character\n\n    Object.extend exports,\n      StringStreamer: StringStreamer\n      Tokenizer: Tokenizer\n      T: T\n\n",
+      "content": "Process\n=======\n\nA process receives data from input and writes data to output and optionally errput.\n\nJust exploring some unix-y concepts in JS land.\n\n    StringStreamer = (output, errput=output) ->\n      (string) ->\n        string.split('').map output\n        \n    T = (output, errput=output) ->\n      (atom) ->\n        console.log atom\n        output atom\n\n    Tokenizer = (output, errput=output) ->\n      word = \"\"\n\n      (character) ->\n        if character.match /\\s/\n          if word\n            output\n              type: \"word\"\n              value: word\n\n            word = \"\"\n        else\n          word += character\n\n    Object.extend exports,\n      StringStreamer: StringStreamer\n      Tokenizer: Tokenizer\n      T: T\n",
       "type": "blob"
     },
     "test/process.coffee": {
