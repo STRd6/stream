@@ -1,4 +1,4 @@
-{StringStreamer, Tokenizer} = require('/process')
+{StringStreamer, Tokenizer, T} = require('/process')
 
 describe "StringStreamer", ->
   it "should convert strings into streams of characters", ->
@@ -20,10 +20,8 @@ describe "Process streams", ->
     output = (token) ->
       tokens.push token
 
-    (StringStreamer Tokenizer output) """
+    (StringStreamer T Tokenizer T output) """
       this is pretty cool\n
     """
-    
-    console.log tokens
-    
+        
     assert.equal tokens.length, 4, "Tokens: #{tokens.length}"

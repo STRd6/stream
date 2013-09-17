@@ -9,6 +9,11 @@ Just exploring some unix-y concepts in JS land.
 
       (string) ->
         string.split('').map output
+        
+    T = (output, errput=output) ->
+      (atom) ->
+        console.log atom
+        output atom
 
     Tokenizer = (output, errput=output) ->
       word = ""
@@ -27,3 +32,5 @@ Just exploring some unix-y concepts in JS land.
     Object.extend exports,
       StringStreamer: StringStreamer
       Tokenizer: Tokenizer
+      T: T
+
