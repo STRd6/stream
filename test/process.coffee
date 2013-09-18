@@ -20,8 +20,10 @@ describe "Process streams", ->
     output = (token) ->
       tokens.push token
 
-    (StringStreamer T Tokenizer T output) """
+    pipeline = StringStreamer Tokenizer output
+
+    pipeline """
       this is pretty cool\n
     """
-        
+
     assert.equal tokens.length, 4, "Tokens: #{tokens.length}"
