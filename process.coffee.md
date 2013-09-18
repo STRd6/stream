@@ -5,6 +5,9 @@ A process receives data from input and writes data to output.
 
 Just exploring some unix-y concepts in JS land.
 
+    STDOUT = (atom) ->
+      console.log atom
+
     StringStreamer = (output) ->
       (string) ->
         string.split('').map output
@@ -36,7 +39,7 @@ Just exploring some unix-y concepts in JS land.
 Example:
 --------
 
->     pipeline = StringStreamer Tokenizer output
+>     pipeline = StringStreamer T Tokenizer STDOUT
 >
 >     pipeline """
 >       this is pretty cool\n
