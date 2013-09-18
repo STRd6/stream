@@ -1,20 +1,20 @@
 Process
 =======
 
-A process receives data from input and writes data to output and optionally errput.
+A process receives data from input and writes data to output.
 
 Just exploring some unix-y concepts in JS land.
 
-    StringStreamer = (output, errput=output) ->
+    StringStreamer = (output) ->
       (string) ->
         string.split('').map output
         
-    T = (output, errput=output) ->
+    T = (output) ->
       (atom) ->
         console.log atom
         output atom
 
-    Tokenizer = (output, errput=output) ->
+    Tokenizer = (output) ->
       word = ""
 
       (character) ->
@@ -32,3 +32,12 @@ Just exploring some unix-y concepts in JS land.
       StringStreamer: StringStreamer
       Tokenizer: Tokenizer
       T: T
+
+Example:
+--------
+
+>     pipeline = StringStreamer Tokenizer output
+>
+>     pipeline """
+>       this is pretty cool\n
+>     """
