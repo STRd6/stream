@@ -32,7 +32,7 @@ Get JSON data from a url then pass it to output
     NULL = ->
 
     T = (output) ->
-      Splitter output, (x) -> console.log(x)
+      Splitter output, STDOUT
 
 Example
 -------
@@ -41,19 +41,17 @@ Example
     headers = Observable([])
 
     rows.observe (newRows) ->
-      return if headers().length
-
       if firstRow = newRows.first()
         headers Object.keys firstRow
-
-    pipeline = DataSource Splatter Splitter(rows.push, STDOUT)
-
-    pipeline("https://api.github.com/repositories")
 
     template = require('./templates/table')(
       rows: rows
       headers: headers
     )
+
+    pipeline = T DataSource T rows
+
+    pipeline("https://api.github.com/repositories")
 
 TODO: This example currently executes when this file is included, so watch out!
 
