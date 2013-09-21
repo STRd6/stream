@@ -32,27 +32,45 @@ Get JSON data from a url then pass it to output
     NULL = ->
 
     T = (output) ->
-      Splitter output, STDOUT
+      tee(STDOUT)(output)
 
-Example
+Similar to unix tee, splits a stream
+
+    tee = (stream) ->
+      (output) ->
+        Splitter output, stream
+
+Emit an atom periodically
+
+    clock = (t) ->
+      (output) ->
+        setInterval ->
+          output 1
+        , t * 1000
+
+Examples
 -------
 
-    rows = Observable([])
-    headers = Observable([])
+JSON to Template
 
-    rows.observe (newRows) ->
-      if firstRow = newRows.first()
-        headers Object.keys firstRow
+    jsonExample = ->
+      rows = Observable([])
+      headers = Observable([])
+  
+      rows.observe (newRows) ->
+        if firstRow = newRows.first()
+          headers Object.keys firstRow
+  
+      template = require('./templates/table')(
+        rows: rows
+        headers: headers
+      )
+  
+      pipeline = T DataSource T rows
+      pipeline("https://api.github.com/repositories")
+      $("body").append(template)
 
-    template = require('./templates/table')(
-      rows: rows
-      headers: headers
-    )
+    clockExample = ->
+      clock(1) STDOUT
 
-    pipeline = T DataSource T rows
-
-    pipeline("https://api.github.com/repositories")
-
-TODO: This example currently executes when this file is included, so watch out!
-
-    $("body").append(template)
+    clockExample()

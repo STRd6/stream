@@ -25,3 +25,5 @@
           called += 1
         
         assert.equal 3, called
+
+    require "../table"
