@@ -24,6 +24,18 @@
       "content": "Process\n=======\n\nA process receives data from input and writes data to output.\n\nJust exploring some unix-y concepts in JS land.\n\n    STDOUT = (atom) ->\n      console.log atom\n\n    StringStreamer = (output) ->\n      (string) ->\n        string.split('').map output\n        \n    T = (output) ->\n      (atom) ->\n        console.log atom\n        output atom\n\n    Tokenizer = (output) ->\n      word = \"\"\n\n      (character) ->\n        if character.match /\\s/\n          if word\n            output\n              type: \"word\"\n              value: word\n\n            word = \"\"\n        else\n          word += character\n\n    Object.extend exports,\n      StringStreamer: StringStreamer\n      Tokenizer: Tokenizer\n      T: T\n\nExample:\n--------\n\n>     pipeline = StringStreamer T Tokenizer STDOUT\n>\n>     pipeline \"\"\"\n>       this is pretty cool\\n\n>     \"\"\"\n",
       "type": "blob"
     },
+    "table.coffee.md": {
+      "path": "table.coffee.md",
+      "mode": "100644",
+      "content": "Table\n=====\n\nA table holds a list of JSON objects that have been hydrated with observable\nproperties.\n\nJust doodling...\n\nSplitter is a generalized T. When contsructed with a list of functions it returns\na function that when called with any argument passes it's argument to to each\nof its output functions.\n\n    Splitter = (outputs...) ->\n      (atom) ->\n        outputs.forEach (output) ->\n          output atom\n\nSplatter splats arrays into individual items. Non-arrays are passed through as is.\n\n    Splatter = (output) ->\n      (arrayOrItem) ->\n        [].concat(arrayOrItem).each (item) ->\n          output.defer item\n\nGet JSON data from a url then pass it to output\n\n    DataSource = (output) ->\n      (url) ->\n        $.getJSON(url).then output\n\n    STDOUT = (atom) -> console.log atom\n    NULL = ->\n\n    T = (output) ->\n      tee(STDOUT)(output)\n\nSimilar to unix tee, splits a stream\n\n    tee = (stream) ->\n      (output) ->\n        Splitter output, stream\n\nEmit an atom periodically\n\n    clock = (t) ->\n      (output) ->\n        setInterval ->\n          output 1\n        , t * 1000\n\nExamples\n-------\n\nJSON to Template\n\n    jsonExample = ->\n      rows = Observable([])\n      headers = Observable([])\n  \n      rows.observe (newRows) ->\n        if firstRow = newRows.first()\n          headers Object.keys firstRow\n  \n      template = require('./templates/table')(\n        rows: rows\n        headers: headers\n      )\n  \n      pipeline = T DataSource T rows\n      pipeline(\"https://api.github.com/repositories\")\n      $(\"body\").append(template)\n\n    clockExample = ->\n      clock(1) STDOUT\n\n    clockExample()\n",
+      "type": "blob"
+    },
+    "templates/table.haml.md": {
+      "path": "templates/table.haml.md",
+      "mode": "100644",
+      "content": "A table template to render rows from stuff!\n\n    %table\n      %thead\n        %tr\n          - each @headers, (header) ->\n            %th= header\n      %tbody\n        - each @rows, (row) ->\n          %tr\n            - Object.keys(row).each (name) ->\n              %td= row[name]\n",
+      "type": "blob"
+    },
     "test/process.coffee": {
       "path": "test/process.coffee",
       "mode": "100644",
@@ -33,19 +45,7 @@
     "test/stream.coffee.md": {
       "path": "test/stream.coffee.md",
       "mode": "100644",
-      "content": "    Stream = require('/main')\n\n    describe \"Stream\", ->\n      it \"should be like a list\", ->\n        stream = Stream(1)\n        \n        assert.equal 1, stream.first()\n\n      it \"should be able to have a couple items\", ->\n      \n        stream = Stream(0, ->Stream(1))\n        \n        assert.equal 0, stream.get(0), \"First item is 0\"\n        assert.equal 1, stream.get(1), \"Second item is 1\"\n\n      it \"should be able to map\", ->\n        stream = Stream(0, ->Stream(1, ->Stream(2))).map (i) -> i * i\n        \n        assert.equal 4, stream.get(2)\n\n      it \"should be enumerable by each\", ->\n        called = 0\n        \n        stream = Stream(0, ->Stream(1, ->Stream(2))).each ->\n          called += 1\n        \n        assert.equal 3, called\n",
-      "type": "blob"
-    },
-    "table.coffee.md": {
-      "path": "table.coffee.md",
-      "mode": "100644",
-      "content": "Table\n=====\n\nA table holds a list of JSON objects that have been hydrated with observable\nproperties.\n\nJust doodling...\n\nSplitter is a generalized T. When contsructed with a list of functions it returns\na function that when called with any argument passes it's argument to to each\nof its output functions.\n\n    Splitter = (outputs...) ->\n      (atom) ->\n        outputs.forEach (output) ->\n          output atom\n\nSplatter splats arrays into individual items. Non-arrays are passed through as is.\n\n    Splatter = (output) ->\n      (arrayOrItem) ->\n        [].concat(arrayOrItem).each (item) ->\n          output.defer item\n\nGet JSON data from a url then pass it to output\n\n    DataSource = (output) ->\n      (url) ->\n        $.getJSON(url).then output\n\n    STDOUT = (atom) -> console.log atom\n    NULL = ->\n\n    T = (output) ->\n      Splitter output, STDOUT\n\nExample\n-------\n\n    rows = Observable([])\n    headers = Observable([])\n\n    rows.observe (newRows) ->\n      if firstRow = newRows.first()\n        headers Object.keys firstRow\n\n    template = require('./templates/table')(\n      rows: rows\n      headers: headers\n    )\n\n    pipeline = T DataSource T rows\n\n    pipeline(\"https://api.github.com/repositories\")\n\nTODO: This example currently executes when this file is included, so watch out!\n\n    $(\"body\").append(template)\n",
-      "type": "blob"
-    },
-    "templates/table.haml.md": {
-      "path": "templates/table.haml.md",
-      "mode": "100644",
-      "content": "A table template to render rows from stuff!\n\n    %table\n      %thead\n        %tr\n          - each @headers, (header) ->\n            %th= header\n      %tbody\n        - each @rows, (row) ->\n          %tr\n            - Object.keys(row).each (name) ->\n              %td= row[name]\n",
+      "content": "    Stream = require('/main')\n\n    describe \"Stream\", ->\n      it \"should be like a list\", ->\n        stream = Stream(1)\n        \n        assert.equal 1, stream.first()\n\n      it \"should be able to have a couple items\", ->\n      \n        stream = Stream(0, ->Stream(1))\n        \n        assert.equal 0, stream.get(0), \"First item is 0\"\n        assert.equal 1, stream.get(1), \"Second item is 1\"\n\n      it \"should be able to map\", ->\n        stream = Stream(0, ->Stream(1, ->Stream(2))).map (i) -> i * i\n        \n        assert.equal 4, stream.get(2)\n\n      it \"should be enumerable by each\", ->\n        called = 0\n        \n        stream = Stream(0, ->Stream(1, ->Stream(2))).each ->\n          called += 1\n        \n        assert.equal 3, called\n\n    require \"../table\"\n",
       "type": "blob"
     }
   },
@@ -60,6 +60,16 @@
       "content": "(function() {\n  var STDOUT, StringStreamer, T, Tokenizer;\n\n  STDOUT = function(atom) {\n    return console.log(atom);\n  };\n\n  StringStreamer = function(output) {\n    return function(string) {\n      return string.split('').map(output);\n    };\n  };\n\n  T = function(output) {\n    return function(atom) {\n      console.log(atom);\n      return output(atom);\n    };\n  };\n\n  Tokenizer = function(output) {\n    var word;\n    word = \"\";\n    return function(character) {\n      if (character.match(/\\s/)) {\n        if (word) {\n          output({\n            type: \"word\",\n            value: word\n          });\n          return word = \"\";\n        }\n      } else {\n        return word += character;\n      }\n    };\n  };\n\n  Object.extend(exports, {\n    StringStreamer: StringStreamer,\n    Tokenizer: Tokenizer,\n    T: T\n  });\n\n}).call(this);\n",
       "type": "blob"
     },
+    "table": {
+      "path": "table",
+      "content": "(function() {\n  var DataSource, NULL, STDOUT, Splatter, Splitter, T, clock, clockExample, jsonExample, tee,\n    __slice = [].slice;\n\n  Splitter = function() {\n    var outputs;\n    outputs = 1 <= arguments.length ? __slice.call(arguments, 0) : [];\n    return function(atom) {\n      return outputs.forEach(function(output) {\n        return output(atom);\n      });\n    };\n  };\n\n  Splatter = function(output) {\n    return function(arrayOrItem) {\n      return [].concat(arrayOrItem).each(function(item) {\n        return output.defer(item);\n      });\n    };\n  };\n\n  DataSource = function(output) {\n    return function(url) {\n      return $.getJSON(url).then(output);\n    };\n  };\n\n  STDOUT = function(atom) {\n    return console.log(atom);\n  };\n\n  NULL = function() {};\n\n  T = function(output) {\n    return tee(STDOUT)(output);\n  };\n\n  tee = function(stream) {\n    return function(output) {\n      return Splitter(output, stream);\n    };\n  };\n\n  clock = function(t) {\n    return function(output) {\n      return setInterval(function() {\n        return output(1);\n      }, t * 1000);\n    };\n  };\n\n  jsonExample = function() {\n    var headers, pipeline, rows, template;\n    rows = Observable([]);\n    headers = Observable([]);\n    rows.observe(function(newRows) {\n      var firstRow;\n      if (firstRow = newRows.first()) {\n        return headers(Object.keys(firstRow));\n      }\n    });\n    template = require('./templates/table')({\n      rows: rows,\n      headers: headers\n    });\n    pipeline = T(DataSource(T(rows)));\n    pipeline(\"https://api.github.com/repositories\");\n    return $(\"body\").append(template);\n  };\n\n  clockExample = function() {\n    return clock(1)(STDOUT);\n  };\n\n  clockExample();\n\n}).call(this);\n",
+      "type": "blob"
+    },
+    "templates/table": {
+      "path": "templates/table",
+      "content": "module.exports = (function(data) {\n  return (function() {\n    var __attribute, __each, __element, __filter, __on, __pop, __push, __render, __text, __with, _ref;\n    _ref = HAMLjr.Runtime(this), __push = _ref.__push, __pop = _ref.__pop, __attribute = _ref.__attribute, __filter = _ref.__filter, __text = _ref.__text, __on = _ref.__on, __each = _ref.__each, __with = _ref.__with, __render = _ref.__render;\n    __push(document.createDocumentFragment());\n    __element = document.createElement(\"table\");\n    __push(__element);\n    __element = document.createElement(\"thead\");\n    __push(__element);\n    __element = document.createElement(\"tr\");\n    __push(__element);\n    __each(this.headers, function(header) {\n      __element = document.createElement(\"th\");\n      __push(__element);\n      __element = document.createTextNode('');\n      __text(__element, header);\n      __push(__element);\n      __pop();\n      return __pop();\n    });\n    __pop();\n    __pop();\n    __element = document.createElement(\"tbody\");\n    __push(__element);\n    __each(this.rows, function(row) {\n      __element = document.createElement(\"tr\");\n      __push(__element);\n      Object.keys(row).each(function(name) {\n        __element = document.createElement(\"td\");\n        __push(__element);\n        __element = document.createTextNode('');\n        __text(__element, row[name]);\n        __push(__element);\n        __pop();\n        return __pop();\n      });\n      return __pop();\n    });\n    __pop();\n    __pop();\n    return __pop();\n  }).call(data);\n});\n;",
+      "type": "blob"
+    },
     "test/process": {
       "path": "test/process",
       "content": "(function() {\n  var StringStreamer, T, Tokenizer, _ref;\n\n  _ref = require('/process'), StringStreamer = _ref.StringStreamer, Tokenizer = _ref.Tokenizer, T = _ref.T;\n\n  describe(\"StringStreamer\", function() {\n    return it(\"should convert strings into streams of characters\", function() {\n      var chars, output;\n      chars = [];\n      output = function(c) {\n        assert.equal(c, \"a\");\n        return chars.push(c);\n      };\n      (StringStreamer(output))(\"aaaaaaa\");\n      return assert.equal(chars.length, 7);\n    });\n  });\n\n  describe(\"Process streams\", function() {\n    return it(\"Should output a stream of tokens\", function() {\n      var output, pipeline, tokens;\n      tokens = [];\n      output = function(token) {\n        return tokens.push(token);\n      };\n      pipeline = StringStreamer(Tokenizer(output));\n      pipeline(\"this is pretty cool\\n\");\n      return assert.equal(tokens.length, 4, \"Tokens: \" + tokens.length);\n    });\n  });\n\n}).call(this);\n",
@@ -67,17 +77,7 @@
     },
     "test/stream": {
       "path": "test/stream",
-      "content": "(function() {\n  var Stream;\n\n  Stream = require('/main');\n\n  describe(\"Stream\", function() {\n    it(\"should be like a list\", function() {\n      var stream;\n      stream = Stream(1);\n      return assert.equal(1, stream.first());\n    });\n    it(\"should be able to have a couple items\", function() {\n      var stream;\n      stream = Stream(0, function() {\n        return Stream(1);\n      });\n      assert.equal(0, stream.get(0), \"First item is 0\");\n      return assert.equal(1, stream.get(1), \"Second item is 1\");\n    });\n    it(\"should be able to map\", function() {\n      var stream;\n      stream = Stream(0, function() {\n        return Stream(1, function() {\n          return Stream(2);\n        });\n      }).map(function(i) {\n        return i * i;\n      });\n      return assert.equal(4, stream.get(2));\n    });\n    return it(\"should be enumerable by each\", function() {\n      var called, stream;\n      called = 0;\n      stream = Stream(0, function() {\n        return Stream(1, function() {\n          return Stream(2);\n        });\n      }).each(function() {\n        return called += 1;\n      });\n      return assert.equal(3, called);\n    });\n  });\n\n}).call(this);\n",
-      "type": "blob"
-    },
-    "table": {
-      "path": "table",
-      "content": "(function() {\n  var DataSource, NULL, STDOUT, Splatter, Splitter, T, headers, pipeline, rows, template,\n    __slice = [].slice;\n\n  Splitter = function() {\n    var outputs;\n    outputs = 1 <= arguments.length ? __slice.call(arguments, 0) : [];\n    return function(atom) {\n      return outputs.forEach(function(output) {\n        return output(atom);\n      });\n    };\n  };\n\n  Splatter = function(output) {\n    return function(arrayOrItem) {\n      return [].concat(arrayOrItem).each(function(item) {\n        return output.defer(item);\n      });\n    };\n  };\n\n  DataSource = function(output) {\n    return function(url) {\n      return $.getJSON(url).then(output);\n    };\n  };\n\n  STDOUT = function(atom) {\n    return console.log(atom);\n  };\n\n  NULL = function() {};\n\n  T = function(output) {\n    return Splitter(output, STDOUT);\n  };\n\n  rows = Observable([]);\n\n  headers = Observable([]);\n\n  rows.observe(function(newRows) {\n    var firstRow;\n    if (firstRow = newRows.first()) {\n      return headers(Object.keys(firstRow));\n    }\n  });\n\n  template = require('./templates/table')({\n    rows: rows,\n    headers: headers\n  });\n\n  pipeline = T(DataSource(T(rows)));\n\n  pipeline(\"https://api.github.com/repositories\");\n\n  $(\"body\").append(template);\n\n}).call(this);\n",
-      "type": "blob"
-    },
-    "templates/table": {
-      "path": "templates/table",
-      "content": "module.exports = (function(data) {\n  return (function() {\n    var __attribute, __each, __element, __filter, __on, __pop, __push, __render, __text, __with, _ref;\n    _ref = HAMLjr.Runtime(this), __push = _ref.__push, __pop = _ref.__pop, __attribute = _ref.__attribute, __filter = _ref.__filter, __text = _ref.__text, __on = _ref.__on, __each = _ref.__each, __with = _ref.__with, __render = _ref.__render;\n    __push(document.createDocumentFragment());\n    __element = document.createElement(\"table\");\n    __push(__element);\n    __element = document.createElement(\"thead\");\n    __push(__element);\n    __element = document.createElement(\"tr\");\n    __push(__element);\n    __each(this.headers, function(header) {\n      __element = document.createElement(\"th\");\n      __push(__element);\n      __element = document.createTextNode('');\n      __text(__element, header);\n      __push(__element);\n      __pop();\n      return __pop();\n    });\n    __pop();\n    __pop();\n    __element = document.createElement(\"tbody\");\n    __push(__element);\n    __each(this.rows, function(row) {\n      __element = document.createElement(\"tr\");\n      __push(__element);\n      Object.keys(row).each(function(name) {\n        __element = document.createElement(\"td\");\n        __push(__element);\n        __element = document.createTextNode('');\n        __text(__element, row[name]);\n        __push(__element);\n        __pop();\n        return __pop();\n      });\n      return __pop();\n    });\n    __pop();\n    __pop();\n    return __pop();\n  }).call(data);\n});\n;",
+      "content": "(function() {\n  var Stream;\n\n  Stream = require('/main');\n\n  describe(\"Stream\", function() {\n    it(\"should be like a list\", function() {\n      var stream;\n      stream = Stream(1);\n      return assert.equal(1, stream.first());\n    });\n    it(\"should be able to have a couple items\", function() {\n      var stream;\n      stream = Stream(0, function() {\n        return Stream(1);\n      });\n      assert.equal(0, stream.get(0), \"First item is 0\");\n      return assert.equal(1, stream.get(1), \"Second item is 1\");\n    });\n    it(\"should be able to map\", function() {\n      var stream;\n      stream = Stream(0, function() {\n        return Stream(1, function() {\n          return Stream(2);\n        });\n      }).map(function(i) {\n        return i * i;\n      });\n      return assert.equal(4, stream.get(2));\n    });\n    return it(\"should be enumerable by each\", function() {\n      var called, stream;\n      called = 0;\n      stream = Stream(0, function() {\n        return Stream(1, function() {\n          return Stream(2);\n        });\n      }).each(function() {\n        return called += 1;\n      });\n      return assert.equal(3, called);\n    });\n  });\n\n  require(\"../table\");\n\n}).call(this);\n",
       "type": "blob"
     }
   },
@@ -90,7 +90,7 @@
     "owner": {
       "login": "STRd6",
       "id": 18894,
-      "avatar_url": "https://1.gravatar.com/avatar/33117162fff8a9cf50544a604f60c045?d=https%3A%2F%2Fidenticons.github.com%2F39df222bffe39629d904e4883eabc654.png",
+      "avatar_url": "https://2.gravatar.com/avatar/33117162fff8a9cf50544a604f60c045?d=https%3A%2F%2Fidenticons.github.com%2F39df222bffe39629d904e4883eabc654.png",
       "gravatar_id": "33117162fff8a9cf50544a604f60c045",
       "url": "https://api.github.com/users/STRd6",
       "html_url": "https://github.com/STRd6",
@@ -145,14 +145,14 @@
     "notifications_url": "https://api.github.com/repos/STRd6/stream/notifications{?since,all,participating}",
     "labels_url": "https://api.github.com/repos/STRd6/stream/labels{/name}",
     "created_at": "2013-09-16T17:03:24Z",
-    "updated_at": "2013-09-18T21:17:25Z",
-    "pushed_at": "2013-09-18T21:17:24Z",
+    "updated_at": "2013-09-19T00:58:16Z",
+    "pushed_at": "2013-09-19T00:58:15Z",
     "git_url": "git://github.com/STRd6/stream.git",
     "ssh_url": "git@github.com:STRd6/stream.git",
     "clone_url": "https://github.com/STRd6/stream.git",
     "svn_url": "https://github.com/STRd6/stream",
     "homepage": null,
-    "size": 1120,
+    "size": 1212,
     "watchers_count": 0,
     "language": "CoffeeScript",
     "has_issues": true,

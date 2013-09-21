@@ -1,17 +1,4 @@
-<!doctype html>
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<script class="env" src="//cdnjs.cloudflare.com/ajax/libs/coffee-script/1.6.3/coffee-script.min.js"></script>
-<script class="env" src="//code.jquery.com/jquery-1.10.1.min.js"></script>
-<script class="env" src="//d1n0x3qji82z53.cloudfront.net/src-min-noconflict/ace.js"></script>
-<script class="env" src="http://strd6.github.io/tempest/javascripts/envweb.js"></script>
-<script class="env" src="http://strd6.github.io/require/master.js"></script>
-</head>
-<body>
-<script>;(function(PACKAGE) {
-require = Require.generateFor(PACKAGE)
-require('./main')
-})({
+window["STRd6/stream:master"]({
   "source": {
     "LICENSE": {
       "path": "LICENSE",
@@ -194,6 +181,4 @@ require('./main')
   "progenitor": {
     "url": "http://strd6.github.io/editor/"
   }
-});</script>
-</body>
-</html>
+});
