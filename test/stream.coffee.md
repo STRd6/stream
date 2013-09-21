@@ -26,4 +26,4 @@
         
         assert.equal 3, called
 
-    require "../table"
+    require "../streamatorium"

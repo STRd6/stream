@@ -1,65 +1,63 @@
 Streamatorium
 =============
 
-Just doodling...
-
 Introduction
 ------------
 
-Streams are a pretty cool guy.
+The Streamatorium is an experiment in applying functional programming and Unix
+principles to the web.
 
-Atoms are any object.
+Processes may look something like these:
+
+Print out even numbers to the console.
+
+>     100.times filter(even) STDOUT
+
+Get popular repos from a json data source and display them one at a time to the 
+console.
+
+>     popular = (repo) -> repo.watchers > 100
+>     
+>     json("https://api.github.com/repos/") each filter(popular) STDOUT
+
+
+Atoms are any object. Atoms form streams by flowing through pipes. Atoms 
+originate in sources and end up in sinks.
 
 > Example atoms
 >     0, 1, "", true, false, "heyyy", 954, {}, {name: "flambo"}, [{...}, ...]
 
+Sinks
+-----
+
 A sink is a function that accepts an atom.
 
->     NULL = (atom) ->
->     STDOUT = (atom) -> 
->       console.log atom
+`STDOUT` logs any atom to the console
+
+    STDOUT = (atom) -> console.log atom
+
+The `NULL` sink eats any atom passed to it and does nothing
+
+    NULL = (atom) ->
 
 A source is a function that takes a sink as an argument.
 
 >     source = (sink) ->
 >       ...
 
-A pipe is a function that takes a sink and returns a sink.
+Pipes
+-----
 
->     identity = (sink) ->
->       (atom) ->
->         sink atom
->     
->     # Almost equivalently:
->     identity = (sink) ->
->       sink
+A pipe is a function that takes a sink and returns a sink. A pipe is both a
+source and a sink.
 
-A pipeline connect sources to sinks through pipes.
+A pipeline connects sources to sinks through pipes.
 
 >     source pipe0 pipe1 pipe2 sink
 
 This works due to function composition: 
 
 >     source(pipe0(pipe1(pipe2(sink))))
-
-A pipe generator is a function that returns a pipe.
-
->     tee = (sink) ->     # Generator
->       (output) ->       # Pipe
->         (atom) ->       # Sink
->           sink atom
->           output atom
-
-Sinks
------
-
-Two sinks.
-
-    STDOUT = (atom) -> console.log atom
-    NULL = ->
-    
-Pipes
------
 
 Pass items through to output unchanged. More useful as a demonstration than
 an actual pipe.
@@ -68,30 +66,29 @@ an actual pipe.
       (atom) ->
         output atom
 
-Output atoms async instead of immediately.
+Output atoms asynchrounously instead of immediately.
 
     defer = (output) ->
       (atom) ->
-        output.defer atom
+        setTimeout output, 0, atom
 
-Get JSON data from a url then pass it to output
+`each` splats arrays into individual items. Non-arrays are passed through as is.
 
-    DataSource = (output) ->
-      (url) ->
-        $.getJSON(url).then output
-
-Splatter splats arrays into individual items. Non-arrays are passed through as is.
-
-    Splatter = (output) ->
+    each = (output) ->
       (arrayOrItem) ->
         [].concat(arrayOrItem).each (item) ->
           output item
 
-Splitter is a generalized T. When contsructed with a list of functions it returns
-a function that when called with any argument passes it's argument to to each
-of its output functions.
+Get JSON data from input urls then pass it along.
 
-    Splitter = (outputs...) ->
+    getJSON = (output) ->
+      (url) ->
+        $.getJSON(url).then output
+
+`split` is a generalized T. When contsructed with a list of sinks it returns
+a sink that outputs to all of the sinks it was constructed with.
+
+    split = (outputs...) ->
       (atom) ->
         outputs.forEach (output) ->
           output atom
@@ -99,11 +96,21 @@ of its output functions.
 Pipe Generators
 ---------------
 
-Similar to unix tee, splits a stream
+A pipe generator is a function that returns a pipe.
+
+Similar to unix tee, splits a stream.
 
     tee = (sink) ->
       (output) ->
-        Splitter sink, output
+        split sink, output
+
+Example of `tee` implemented wthout `split`
+
+>     tee = (sink) ->     # Generator
+>       (output) ->       # Pipe
+>         (atom) ->       # Sink
+>           sink atom
+>           output atom
 
 `T` is a pipe that will mirror its atoms to the console. It is useful for
 inspecting the flow at any point in the pipeline.
@@ -113,9 +120,10 @@ inspecting the flow at any point in the pipeline.
 >     source T pipe0 T pipe1 STDOUT
 
 Maps
--------------
+----
 
-Generate a pipe that transforms atoms.
+Generate a pipe that transforms atoms by applying the given transformation
+function to each atom as it passes through.
 
     map = (fn) ->
       (output) ->
@@ -123,21 +131,27 @@ Generate a pipe that transforms atoms.
           output fn(atom)
 
 Filters
-----------------
+-------
 
-Generate a pipe that only allows certain atoms to pass through.
+Generate a pipe that only allows certain atoms to pass through. `filter` applies
+the given indicator function and only passes through atoms for which it returns
+true.
 
     filter = (fn) ->
       (output) ->
         (atom) ->
           output atom if fn(atom)
 
-Filter out `null` and `undefined`
+The `soak` pipe filters out `null` and `undefined` atoms.
 
     soak = filter (atom) -> atom?
 
 Stateful Pipes
 --------------
+
+`toggle` is a switch. Whenever it receives an input it will ouput either true or
+false and switch its state to output the opposite value the next input it
+receives. It doesn't matter what atom it receives.
 
     toggle = (output) ->
       value = true
@@ -148,7 +162,7 @@ Stateful Pipes
 Clocks
 ------
 
-Emit an atom periodically
+Emit an atom periodically. The `clock` constructor returns a source.
 
     clock = (t) ->
       (output) ->
@@ -156,11 +170,18 @@ Emit an atom periodically
           output 1
         , t * 1000
 
+Controls
+--------
+
+TODO: Transistors and stuff.
+
 Gates
 -----
 
-Attempting to make a buffer that collects input and releases them based on a
-control/signal input. Currently really crude.
+Attempt at a buffer that collects input and releases them based on a
+control/signal input.
+
+`ctrl` is a source
 
     gate = (ctrl) ->
       (output) ->
@@ -190,7 +211,7 @@ JSON to Template
         headers: headers
       )
   
-      pipeline = T DataSource T rows
+      pipeline = T getJSON T rows
       pipeline("https://api.github.com/repositories")
       $("body").append(template)
 
@@ -208,7 +229,7 @@ JSON to Template
     toggleExample = ->
       10.times toggle STDOUT
 
-    gateExample()
+    filterExample()
 
 Notes
 -----
