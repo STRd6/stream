@@ -51,20 +51,15 @@ Emit an atom periodically
 Attempting to make a buffer that collects input and releases them based on a
 control/signal input. Currently really crude.
 
-    gate = ->
-      buffer = []
-      out = null
+    gate = (ctrl) ->
+      (output) ->
+        buffer = []
 
-      fn = (output) ->
-        out = output
+        ctrl ->
+          output buffer.shift()
 
         (atom) ->
           buffer.push atom
-
-      fn.CTRL = ->
-        out buffer.shift()
-
-      fn
 
     soak = (output) ->
       (atom) ->
@@ -96,10 +91,36 @@ JSON to Template
       clock(1) STDOUT
 
     gateExample = ->
-      numberGate = gate()
-
-      clock(0.25) numberGate.CTRL
-
-      25.times numberGate soak STDOUT
+      25.times gate(clock(0.25)) soak STDOUT
 
     gateExample()
+
+
+Notes
+-----
+
+Apparently there is some mad currying going on.
+
+When nesting the functions avoid leaky closures:
+
+    # GOOD, can reuse the "same" gate in multiple streams no problem
+    gate = (ctrl) ->
+      (output) ->
+        buffer = []
+
+        ctrl ->
+          output buffer.shift()
+
+        (atom) ->
+          buffer.push atom
+    
+    # BAD, gate will get weird if used in multiple streams
+    gate = (ctrl) ->
+      buffer = []
+      
+      (output) ->
+        ctrl ->
+          output buffer.shift()
+
+        (atom) ->
+          buffer.push atom
