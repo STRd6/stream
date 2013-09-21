@@ -48,6 +48,28 @@ Emit an atom periodically
           output 1
         , t * 1000
 
+Attempting to make a buffer that collects input and releases them based on a
+control/signal input. Currently really crude.
+
+    gate = ->
+      buffer = []
+      out = null
+
+      fn = (output) ->
+        out = output
+
+        (atom) ->
+          buffer.push atom
+
+      fn.CTRL = ->
+        out buffer.shift()
+
+      fn
+
+    soak = (output) ->
+      (atom) ->
+        output atom if atom?
+
 Examples
 -------
 
@@ -73,4 +95,11 @@ JSON to Template
     clockExample = ->
       clock(1) STDOUT
 
-    clockExample()
+    gateExample = ->
+      numberGate = gate()
+
+      clock(0.25) numberGate.CTRL
+
+      25.times numberGate soak STDOUT
+
+    gateExample()
