@@ -130,6 +130,9 @@ function to each atom as it passes through.
         (atom) ->
           output fn(atom)
 
+    characterSplitter = map (string) ->
+      string.split('')
+
 Filters
 -------
 
@@ -159,6 +162,20 @@ receives. It doesn't matter what atom it receives.
         output value
         value = !value
 
+Aggregate a stream of individual characters separated by whitespace into a stream
+of word strings.
+
+    tokenizer = (output) ->
+      word = ""
+
+      (character) ->
+        if character.match /\s/
+          if word
+            output word
+
+            word = ""
+        else
+          word += character
 Clocks
 ------
 
@@ -229,12 +246,13 @@ JSON to Template
     toggleExample = ->
       10.times toggle STDOUT
 
-    filterExample()
+    tokenizerExample = ->
+       (characterSplitter each tokenizer STDOUT)("a sentence of words\n")
+
+    tokenizerExample()
 
 Notes
 -----
-
-Apparently there is some mad currying going on.
 
 When nesting the functions avoid leaky closures:
 
