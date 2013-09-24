@@ -48,7 +48,7 @@ A source is a function that takes a sink as an argument.
 Pipes
 -----
 
-A pipe is a function that takes a sink and returns a sink. A pipe is both a
+A pipe is a function that takes a sink and returns a pipe. A pipe is both a
 source and a sink.
 
 A pipeline connects sources to sinks through pipes.
@@ -169,6 +169,9 @@ and atom is received.
       value = 0
       (atom) ->
         output value += 1
+
+Sum the atoms that flow through and output the current total each time an atom
+is received.
 
     accumulator = (output) ->
       value = 0
