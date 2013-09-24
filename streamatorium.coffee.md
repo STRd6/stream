@@ -168,12 +168,12 @@ and atom is received.
     counter = (output) ->
       value = 0
       (atom) ->
-        output(value += 1)
+        output value += 1
 
     accumulator = (output) ->
       value = 0
       (atom) ->
-        output(value += atom)
+        output value += atom
 
 Aggregate a stream of individual characters separated by whitespace into a stream
 of word strings.
@@ -199,7 +199,7 @@ ourselves, ex:
 >     source pipe0 pipe1 TO("A")
 >     FROM("A") pipe2 pipe3 STDOUT
 
-    connector =
+    connector = ->
       atoms = []
       output = null
       
