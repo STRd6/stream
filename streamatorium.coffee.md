@@ -162,6 +162,19 @@ receives. It doesn't matter what atom it receives.
         output value
         value = !value
 
+Count number of atoms that flowed through, outputting the total count each time
+and atom is received.
+
+    counter = (output) ->
+      value = 0
+      (atom) ->
+        output value += 1
+
+    accumulator = (output) ->
+      value = 0
+      (atom) ->
+        output value += atom
+
 Aggregate a stream of individual characters separated by whitespace into a stream
 of word strings.
 
@@ -176,6 +189,37 @@ of word strings.
             word = ""
         else
           word += character
+
+Connect the "end" of one pipeline to the begining of a new one.
+
+TODO: Explore this further, currently seems like a pain to hold a reference
+to a sink and carry it over as a source. Maybe if the constructor took names
+to refer to connectors so we could use them without carrying the instances
+ourselves, ex: 
+>     source pipe0 pipe1 TO("A")
+>     FROM("A") pipe2 pipe3 STDOUT
+
+    connector =
+      atoms = []
+      output = null
+      
+      flush = ->
+        if output
+          while atoms.length
+            output atoms.shift()
+
+      collector = (atom) ->
+        atoms.push atom
+
+        flush()
+
+      collector.source = (sink) ->
+        output = sink
+
+        flush()
+
+      return collector
+
 Clocks
 ------
 
@@ -209,6 +253,18 @@ control/signal input.
 
         (atom) ->
           buffer.push atom
+
+Maintain most recent value and emit it on CTRL.
+
+    latch = (ctrl) ->
+      (output) ->
+        value = undefined
+
+        ctrl ->
+          output value
+
+        (atom) ->
+          value = atom
 
 Examples
 -------
