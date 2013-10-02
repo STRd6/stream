@@ -97,6 +97,11 @@ Get JSON data from input urls then pass it along.
     getJSON = (output) ->
       (url) ->
         $.getJSON(url).then output
+    
+>     #! pipe
+>     "https://api.github.com/users/STRd6".tap getJSON prettyPrint STDOUT
+
+----
 
 `split` is a generalized T. When contsructed with a list of sinks it returns
 a sink that outputs to all of the sinks it was constructed with.
@@ -143,8 +148,29 @@ function to each atom as it passes through.
         (atom) ->
           output fn(atom)
 
-    characterSplitter = map (string) ->
-      string.split('')
+`pluck` selects an attribute from an atom and passes that attribute on.
+
+    pluck = (name) -> 
+      (output) ->
+        (atom) ->
+          output atom[name]
+
+>     #! pipe
+>     {name: "Duder"}.tap pluck("name") STDOUT
+
+`invoke` generates a pipe that invokes the named function with the given 
+arguments on each item passing through then passes the result on to the sink it
+is connected to.
+
+    invoke = (name, args...) ->
+      (output) ->
+        (atom) ->
+          output atom[name](args...)
+
+>     #! pipe
+>     "Welcome to the Streamatorium".tap invoke("split", "") T each STDOUT
+
+----
 
 Filters
 -------
@@ -161,6 +187,11 @@ true.
 The `soak` pipe filters out `null` and `undefined` atoms.
 
     soak = filter (atom) -> atom?
+  
+>     #! pipe
+>     even = (x) -> x % 2 is 0
+>
+>     countTo(25) filter(even) STDOUT
 
 Stateful Pipes
 --------------
@@ -310,23 +341,17 @@ JSON to Template
     gateExample = ->
       25.times gate(clock(0.25)) soak defer T NULL
 
-    filterExample = ->
-      even = (x) -> x % 2 is 0
-
-      100.times filter(even) STDOUT
-
     toggleExample = ->
       10.times toggle STDOUT
 
-    tokenizerExample = ->
-       (characterSplitter each tokenizer STDOUT)("a sentence of words\n")
-
-    tokenizerExample()
-    
     module.exports = Streamatorium =
       each: each
+      filter: filter
+      getJSON: getJSON
       identity: identity
-
+      invoke: invoke
+      map: map
+      pluck: pluck
       pollute: ->
         Object.keys(Streamatorium).forEach (name) ->
           unless name is "pollute"

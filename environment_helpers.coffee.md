@@ -25,3 +25,9 @@ stream.
         while i < n
           output(i)
           i += 1
+
+`prettyPrint` 
+
+    global.prettyPrint = (output) ->
+      (atom) ->
+        output JSON.stringify(atom, null, 2)
