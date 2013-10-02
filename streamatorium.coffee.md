@@ -206,6 +206,9 @@ receives. It doesn't matter what atom it receives.
         output value
         value = !value
 
+>     #! pipe
+>     countTo(10) toggle STDOUT
+
 Count number of atoms that flowed through, outputting the total count each time
 and atom is received.
 
@@ -341,9 +344,6 @@ JSON to Template
     gateExample = ->
       25.times gate(clock(0.25)) soak defer T NULL
 
-    toggleExample = ->
-      10.times toggle STDOUT
-
     module.exports = Streamatorium =
       each: each
       filter: filter
@@ -356,10 +356,9 @@ JSON to Template
         Object.keys(Streamatorium).forEach (name) ->
           unless name is "pollute"
             global[name] = Streamatorium[name]
-
-      tee: tee
-
       T: T
+      tee: tee
+      toggle: toggle
 
 Live Examples
 -------------
