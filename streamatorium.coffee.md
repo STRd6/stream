@@ -7,11 +7,18 @@ Introduction
 The Streamatorium is an experiment in applying functional programming and Unix
 principles to the web.
 
-Processes may look something like these:
+Stream processes look like this:
 
-Print out even numbers to the console.
+>     #! pipe
+>     # Print out 10 numbers to the console
+>     [0..9].map STDOUT
 
->     100.times filter(even) STDOUT
+----
+
+On the left is a source, on the right is a sink. Any number of pipes may
+connect them.
+
+----
 
 Get popular repos from a json data source and display them one at a time to the
 console.
@@ -34,6 +41,8 @@ Sinks
 
 A sink is a function that accepts an atom.
 
+----
+
 `STDOUT` logs any atom to the console
 
     STDOUT = (atom) -> 
@@ -43,10 +52,38 @@ The `NULL` sink eats any atom passed to it and does nothing
 
     NULL = (atom) ->
 
+Sources
+-------
+
 A source is a function that takes a sink as an argument.
 
 >     source = (sink) ->
 >       ...
+
+We have added a utility method `tap` to turn any object into a source.
+
+>     #! pipe
+>     "Hello World".tap STDOUT
+
+----
+
+This is simply a convenience to keep the source on the left rather than:
+
+>     (STDOUT) "Hello World"
+
+With just a sink it doesn't seem to save much, but compare to a lager pipeline:
+
+>     (T invoke("split", "") STDOUT) "Hello World"
+
+----
+
+Any array can become a source using the existing `map` or `forEach` methods.
+
+>     #! pipe
+>     [1, 2, 3].map STDOUT
+>     [4, 5, 6].forEach STDOUT
+
+----
 
 Pipes
 -----
@@ -62,19 +99,21 @@ This works due to function composition:
 
 >     source(pipe0(pipe1(pipe2(sink))))
 
-Pass items through to output unchanged. More useful as a demonstration than
-an actual pipe.
+----
+
+`identity` passes items through to the output unchanged. It is more useful as a 
+demonstration than as a practical pipe.
 
     identity = (output) ->
       (atom) ->
         output atom
 
 >     #! pipe
->     countTo(10) identity STDOUT
+>     [0..9].map identity STDOUT
 
 ----
 
-Output atoms asynchrounously instead of immediately.
+`defer` outputs atoms asynchrounously instead of immediately.
 
     defer = (output) ->
       (atom) ->
@@ -92,6 +131,14 @@ Output atoms asynchrounously instead of immediately.
 
 ----
 
+`prettyPrint` prettily prints an object as JSON.
+
+    prettyPrint = (output) ->
+      (atom) ->
+        output JSON.stringify(atom, null, 2)
+
+----
+
 Get JSON data from input urls then pass it along.
 
     getJSON = (output) ->
@@ -103,6 +150,9 @@ Get JSON data from input urls then pass it along.
 
 ----
 
+Splitters
+---------
+
 `split` is a generalized T. When contsructed with a list of sinks it returns
 a sink that outputs to all of the sinks it was constructed with.
 
@@ -111,24 +161,12 @@ a sink that outputs to all of the sinks it was constructed with.
         outputs.forEach (output) ->
           output atom
 
-Pipe Generators
----------------
-
-A pipe generator is a function that returns a pipe.
-
-Similar to unix tee, splits a stream.
+`tee`, similar to unix tee, splits a stream so that each atom flows to two 
+sinks.
 
     tee = (sink) ->
       (output) ->
         split sink, output
-
-Example of `tee` implemented wthout `split`
-
->     tee = (sink) ->     # Generator
->       (output) ->       # Pipe
->         (atom) ->       # Sink
->           sink atom
->           output atom
 
 `T` is a pipe that will mirror its atoms to the console. It is useful for
 inspecting the flow at any point in the pipeline.
@@ -136,6 +174,22 @@ inspecting the flow at any point in the pipeline.
     T = tee(STDOUT)
 
 >     source T pipe0 T pipe1 STDOUT
+
+Pipe Generators
+---------------
+
+A pipe generator is a function that returns a pipe. The splitters above are one
+kind of pipe generator.
+
+Example of `tee` implemented wthout `split` and annotated to show each part.
+
+>     tee = (sink) ->     # Generator
+>       (output) ->       # Pipe
+>         (atom) ->       # Sink
+>           sink atom
+>           output atom
+
+
 
 Maps
 ----
@@ -147,6 +201,13 @@ function to each atom as it passes through.
       (output) ->
         (atom) ->
           output fn(atom)
+
+>     #! pipe
+>     square = (x) -> x * x
+>
+>     [1..10].map map(square) STDOUT
+
+----
 
 `pluck` selects an attribute from an atom and passes that attribute on.
 
@@ -189,7 +250,7 @@ true.
 >     #! pipe
 >     even = (x) -> x % 2 is 0
 >
->     countTo(25) filter(even) STDOUT
+>     [0..25].map filter(even) STDOUT
 
 ----
 
@@ -212,7 +273,7 @@ receives. It doesn't matter what atom it receives.
         value = !value
 
 >     #! pipe
->     countTo(10) toggle STDOUT
+>     [0..9].map toggle STDOUT
 
 ----
 
@@ -225,7 +286,7 @@ and atom is received.
         output value += 1
 
 >     #! pipe
->     [1, 1, 1, 1, 1].forEach counter STDOUT
+>     [1, 1, 1, 1, 1].map counter STDOUT
 
 ----
 
@@ -238,7 +299,7 @@ is received.
         output value += atom
 
 >     #! pipe
->     countTo(10) accumulator STDOUT
+>     [0..9].map accumulator STDOUT
 
 ----
 
@@ -261,6 +322,9 @@ Connectors
 ----------
 
 Connect the "end" of one pipeline to the begining of a new one.
+
+TODO: Allow connectors to be created in any order.
+TODO: Allow many to many connectors.
 
     connector = ->
       atoms = []
@@ -291,7 +355,7 @@ Connect the "end" of one pipeline to the begining of a new one.
       connectors[id].source
 
 >     #! pipe
->     countTo(10) TO("A")
+>     [0..9].map TO("A")
 >     FROM("A") STDOUT
 
 ----
@@ -336,7 +400,7 @@ control/signal input.
           buffer.push atom
 
 >     #! pipe
->     countTo(25) gate(clock(2)) STDOUT
+>     [0..25].map gate(clock(2)) STDOUT
 
 Maintain most recent value and emit it on CTRL.
 
@@ -350,8 +414,8 @@ Maintain most recent value and emit it on CTRL.
         (atom) ->
           value = atom
 
-Examples
--------
+Export
+------
 
     module.exports = Streamatorium =
       accumulator: accumulator
@@ -370,6 +434,7 @@ Examples
         Object.keys(Streamatorium).forEach (name) ->
           unless name is "pollute"
             global[name] = Streamatorium[name]
+      prettyPrint: prettyPrint
       soak: soak
       T: T
       tee: tee

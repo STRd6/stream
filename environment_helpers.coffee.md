@@ -16,18 +16,3 @@ stream.
           fn(this)
 
           return this
-
-`countTo` generates a source that emits sequence of values from [0, n).
-
-    global.countTo = (n) ->
-      (output) ->
-        i = 0
-        while i < n
-          output(i)
-          i += 1
-
-`prettyPrint` 
-
-    global.prettyPrint = (output) ->
-      (atom) ->
-        output JSON.stringify(atom, null, 2)
