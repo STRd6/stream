@@ -255,6 +255,9 @@ of word strings.
         else
           word += character
 
+Connectors
+----------
+
 Connect the "end" of one pipeline to the begining of a new one.
 
     connector = ->
@@ -302,6 +305,11 @@ Emit an atom periodically. The `clock` constructor returns a source.
           output 1
         , t * 1000
 
+>     #! pipe
+>     clock(4) STDOUT
+
+----
+
 Controls
 --------
 
@@ -325,6 +333,9 @@ control/signal input.
         (atom) ->
           buffer.push atom
 
+>     #! pipe
+>     countTo(25) gate(clock(2)) STDOUT
+
 Maintain most recent value and emit it on CTRL.
 
     latch = (ctrl) ->
@@ -340,37 +351,14 @@ Maintain most recent value and emit it on CTRL.
 Examples
 -------
 
-JSON to Template
-
-    jsonExample = ->
-      rows = Observable([])
-      headers = Observable([])
-
-      rows.observe (newRows) ->
-        if firstRow = newRows.first()
-          headers Object.keys firstRow
-
-      template = require('./templates/table')(
-        rows: rows
-        headers: headers
-      )
-
-      pipeline = T getJSON T rows
-      pipeline("https://api.github.com/repositories")
-      $("body").append(template)
-
-    clockExample = ->
-      clock(1) STDOUT
-
-    gateExample = ->
-      25.times gate(clock(0.25)) soak defer T NULL
-
     module.exports = Streamatorium =
       accumulator: accumulator
+      clock: clock
       counter: counter
       each: each
       filter: filter
       FROM: FROM
+      gate: gate
       getJSON: getJSON
       identity: identity
       invoke: invoke
@@ -380,6 +368,7 @@ JSON to Template
         Object.keys(Streamatorium).forEach (name) ->
           unless name is "pollute"
             global[name] = Streamatorium[name]
+      soak: soak
       T: T
       tee: tee
       TO: TO
@@ -387,9 +376,6 @@ JSON to Template
 
 Live Examples
 -------------
-
-`pipe` examples provide the pipe functions and dislpay all atoms received in
-STDOUT on the righthand side.
 
 >     #! setup
 >     require("/interactive_runtime")
