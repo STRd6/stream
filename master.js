@@ -1,5 +1,5 @@
 (function() {
-  var FROM, NULL, STDOUT, Streamatorium, T, TO, accumulator, clock, connector, connectors, counter, defer, each, filter, gate, getJSON, identity, invoke, latch, map, pluck, soak, split, tee, toggle, tokenizer,
+  var FROM, NULL, STDOUT, Streamatorium, T, TO, accumulator, clock, connector, connectors, counter, defer, each, filter, gate, getJSON, identity, invoke, latch, map, pluck, prettyPrint, soak, split, tee, toggle, tokenizer,
     __slice = [].slice;
 
   STDOUT = function(atom) {
@@ -25,6 +25,12 @@
       return [].concat(arrayOrItem).forEach(function(item) {
         return output(item);
       });
+    };
+  };
+
+  prettyPrint = function(output) {
+    return function(atom) {
+      return output(JSON.stringify(atom, null, 2));
     };
   };
 
@@ -221,6 +227,7 @@
         }
       });
     },
+    prettyPrint: prettyPrint,
     soak: soak,
     T: T,
     tee: tee,
