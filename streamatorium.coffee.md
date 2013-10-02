@@ -158,6 +158,8 @@ function to each atom as it passes through.
 >     #! pipe
 >     {name: "Duder"}.tap pluck("name") STDOUT
 
+----
+
 `invoke` generates a pipe that invokes the named function with the given 
 arguments on each item passing through then passes the result on to the sink it
 is connected to.
