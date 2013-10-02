@@ -75,7 +75,7 @@ The primary use case in my mind is something like:
 Which could be connected something like:
 
 >     errors STDERR
->     
+>
 >     reader lexer parser compiler STDOUT
 
 Resources

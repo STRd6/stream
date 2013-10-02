@@ -13,19 +13,21 @@ Print out even numbers to the console.
 
 >     100.times filter(even) STDOUT
 
-Get popular repos from a json data source and display them one at a time to the 
+Get popular repos from a json data source and display them one at a time to the
 console.
 
 >     popular = (repo) -> repo.watchers > 100
->     
+>
 >     json("https://api.github.com/repos/") each filter(popular) STDOUT
 
 
-Atoms are any object. Atoms form streams by flowing through pipes. Atoms 
+Atoms are any object. Atoms form streams by flowing through pipes. Atoms
 originate in sources and end up in sinks.
 
-> Example atoms
->     0, 1, "", true, false, "heyyy", 954, {}, {name: "flambo"}, [{...}, ...]
+Example atoms:
+
+>     0, 1, "", true, false, "heyyy", 954, 
+>     {}, {name: "flambo"}, [{...}, ...]
 
 Sinks
 -----
@@ -34,7 +36,8 @@ A sink is a function that accepts an atom.
 
 `STDOUT` logs any atom to the console
 
-    STDOUT = (atom) -> console.log atom
+    STDOUT = (atom) -> 
+      console.log atom
 
 The `NULL` sink eats any atom passed to it and does nothing
 
@@ -48,14 +51,14 @@ A source is a function that takes a sink as an argument.
 Pipes
 -----
 
-A pipe is a function that takes a sink and returns a pipe. A pipe is both a
+A pipe is a function that takes a sink and returns a sink. A pipe is both a
 source and a sink.
 
 A pipeline connects sources to sinks through pipes.
 
 >     source pipe0 pipe1 pipe2 sink
 
-This works due to function composition: 
+This works due to function composition:
 
 >     source(pipe0(pipe1(pipe2(sink))))
 
@@ -65,6 +68,11 @@ an actual pipe.
     identity = (output) ->
       (atom) ->
         output atom
+
+>     #! pipe
+>     countTo(10) identity STDOUT
+
+----
 
 Output atoms asynchrounously instead of immediately.
 
@@ -76,8 +84,13 @@ Output atoms asynchrounously instead of immediately.
 
     each = (output) ->
       (arrayOrItem) ->
-        [].concat(arrayOrItem).each (item) ->
+        [].concat(arrayOrItem).forEach (item) ->
           output item
+
+>     #! pipe
+>     [1, 2, 3, 4, 5].tap T each STDOUT
+
+----
 
 Get JSON data from input urls then pass it along.
 
@@ -198,14 +211,14 @@ Connect the "end" of one pipeline to the begining of a new one.
 TODO: Explore this further, currently seems like a pain to hold a reference
 to a sink and carry it over as a source. Maybe if the constructor took names
 to refer to connectors so we could use them without carrying the instances
-ourselves, ex: 
+ourselves, ex:
 >     source pipe0 pipe1 TO("A")
 >     FROM("A") pipe2 pipe3 STDOUT
 
     connector = ->
       atoms = []
       output = null
-      
+
       flush = ->
         if output
           while atoms.length
@@ -277,16 +290,16 @@ JSON to Template
     jsonExample = ->
       rows = Observable([])
       headers = Observable([])
-  
+
       rows.observe (newRows) ->
         if firstRow = newRows.first()
           headers Object.keys firstRow
-  
+
       template = require('./templates/table')(
         rows: rows
         headers: headers
       )
-  
+
       pipeline = T getJSON T rows
       pipeline("https://api.github.com/repositories")
       $("body").append(template)
@@ -309,30 +322,25 @@ JSON to Template
        (characterSplitter each tokenizer STDOUT)("a sentence of words\n")
 
     tokenizerExample()
-
-Notes
------
-
-When nesting the functions avoid leaky closures:
-
-    # GOOD, can reuse the "same" gate in multiple streams no problem
-    gate = (ctrl) ->
-      (output) ->
-        buffer = []
-
-        ctrl ->
-          output buffer.shift()
-
-        (atom) ->
-          buffer.push atom
     
-    # BAD, gate will get weird if used in multiple streams
-    gate = (ctrl) ->
-      buffer = []
-      
-      (output) ->
-        ctrl ->
-          output buffer.shift()
+    module.exports = Streamatorium =
+      each: each
+      identity: identity
 
-        (atom) ->
-          buffer.push atom
+      pollute: ->
+        Object.keys(Streamatorium).forEach (name) ->
+          unless name is "pollute"
+            global[name] = Streamatorium[name]
+
+      tee: tee
+
+      T: T
+
+Live Examples
+-------------
+
+`pipe` examples provide the pipe functions and dislpay all atoms received in
+STDOUT on the righthand side.
+
+>     #! setup
+>     require("/interactive_runtime")
