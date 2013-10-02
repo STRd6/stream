@@ -184,14 +184,17 @@ true.
         (atom) ->
           output atom if fn(atom)
 
-The `soak` pipe filters out `null` and `undefined` atoms.
-
-    soak = filter (atom) -> atom?
-  
 >     #! pipe
 >     even = (x) -> x % 2 is 0
 >
 >     countTo(25) filter(even) STDOUT
+
+----
+
+The `soak` pipe filters out `null` and `undefined` atoms.
+
+    soak = filter (atom) -> atom?
+
 
 Stateful Pipes
 --------------
@@ -209,6 +212,8 @@ receives. It doesn't matter what atom it receives.
 >     #! pipe
 >     countTo(10) toggle STDOUT
 
+----
+
 Count number of atoms that flowed through, outputting the total count each time
 and atom is received.
 
@@ -217,6 +222,11 @@ and atom is received.
       (atom) ->
         output value += 1
 
+>     #! pipe
+>     [1, 1, 1, 1, 1].forEach counter STDOUT
+
+----
+
 Sum the atoms that flow through and output the current total each time an atom
 is received.
 
@@ -224,6 +234,11 @@ is received.
       value = 0
       (atom) ->
         output value += atom
+
+>     #! pipe
+>     countTo(10) accumulator STDOUT
+
+----
 
 Aggregate a stream of individual characters separated by whitespace into a stream
 of word strings.
@@ -241,13 +256,6 @@ of word strings.
           word += character
 
 Connect the "end" of one pipeline to the begining of a new one.
-
-TODO: Explore this further, currently seems like a pain to hold a reference
-to a sink and carry it over as a source. Maybe if the constructor took names
-to refer to connectors so we could use them without carrying the instances
-ourselves, ex:
->     source pipe0 pipe1 TO("A")
->     FROM("A") pipe2 pipe3 STDOUT
 
     connector = ->
       atoms = []
@@ -269,6 +277,19 @@ ourselves, ex:
         flush()
 
       return collector
+
+    connectors = {}
+    TO = (id) ->
+      connectors[id] = connector()
+
+    FROM = (id) ->
+      connectors[id].source
+
+>     #! pipe
+>     countTo(10) TO("A")
+>     FROM("A") STDOUT
+
+----
 
 Clocks
 ------
@@ -345,8 +366,11 @@ JSON to Template
       25.times gate(clock(0.25)) soak defer T NULL
 
     module.exports = Streamatorium =
+      accumulator: accumulator
+      counter: counter
       each: each
       filter: filter
+      FROM: FROM
       getJSON: getJSON
       identity: identity
       invoke: invoke
@@ -358,6 +382,7 @@ JSON to Template
             global[name] = Streamatorium[name]
       T: T
       tee: tee
+      TO: TO
       toggle: toggle
 
 Live Examples
