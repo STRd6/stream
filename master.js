@@ -1,5 +1,5 @@
 (function() {
-  var NULL, STDOUT, Streamatorium, T, accumulator, clock, clockExample, connector, counter, defer, each, filter, gate, gateExample, getJSON, identity, invoke, jsonExample, latch, map, pluck, soak, split, tee, toggle, tokenizer,
+  var FROM, NULL, STDOUT, Streamatorium, T, TO, accumulator, clock, clockExample, connector, connectors, counter, defer, each, filter, gate, gateExample, getJSON, identity, invoke, jsonExample, latch, map, pluck, soak, split, tee, toggle, tokenizer,
     __slice = [].slice;
 
   STDOUT = function(atom) {
@@ -157,6 +157,16 @@
     return collector;
   };
 
+  connectors = {};
+
+  TO = function(id) {
+    return connectors[id] = connector();
+  };
+
+  FROM = function(id) {
+    return connectors[id].source;
+  };
+
   clock = function(t) {
     return function(output) {
       return setInterval(function() {
@@ -219,8 +229,11 @@
   };
 
   module.exports = Streamatorium = {
+    accumulator: accumulator,
+    counter: counter,
     each: each,
     filter: filter,
+    FROM: FROM,
     getJSON: getJSON,
     identity: identity,
     invoke: invoke,
@@ -235,6 +248,7 @@
     },
     T: T,
     tee: tee,
+    TO: TO,
     toggle: toggle
   };
 
