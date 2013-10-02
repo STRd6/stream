@@ -1,5 +1,5 @@
 (function() {
-  var NULL, STDOUT, Streamatorium, T, accumulator, characterSplitter, clock, clockExample, connector, counter, defer, each, filter, filterExample, gate, gateExample, getJSON, identity, jsonExample, latch, map, soak, split, tee, toggle, toggleExample, tokenizer, tokenizerExample,
+  var NULL, STDOUT, Streamatorium, T, accumulator, clock, clockExample, connector, counter, defer, each, filter, gate, gateExample, getJSON, identity, invoke, jsonExample, latch, map, pluck, soak, split, tee, toggle, toggleExample, tokenizer,
     __slice = [].slice;
 
   STDOUT = function(atom) {
@@ -60,9 +60,23 @@
     };
   };
 
-  characterSplitter = map(function(string) {
-    return string.split('');
-  });
+  pluck = function(name) {
+    return function(output) {
+      return function(atom) {
+        return output(atom[name]);
+      };
+    };
+  };
+
+  invoke = function() {
+    var args, name;
+    name = arguments[0], args = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
+    return function(output) {
+      return function(atom) {
+        return output(atom[name].apply(atom, args));
+      };
+    };
+  };
 
   filter = function(fn) {
     return function(output) {
@@ -204,27 +218,18 @@
     return 25..times(gate(clock(0.25))(soak(defer(T(NULL)))));
   };
 
-  filterExample = function() {
-    var even;
-    even = function(x) {
-      return x % 2 === 0;
-    };
-    return 100..times(filter(even)(STDOUT));
-  };
-
   toggleExample = function() {
     return 10..times(toggle(STDOUT));
   };
 
-  tokenizerExample = function() {
-    return (characterSplitter(each(tokenizer(STDOUT))))("a sentence of words\n");
-  };
-
-  tokenizerExample();
-
   module.exports = Streamatorium = {
     each: each,
+    filter: filter,
+    getJSON: getJSON,
     identity: identity,
+    invoke: invoke,
+    map: map,
+    pluck: pluck,
     pollute: function() {
       return Object.keys(Streamatorium).forEach(function(name) {
         if (name !== "pollute") {
