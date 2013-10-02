@@ -1,5 +1,5 @@
 (function() {
-  var FROM, NULL, STDOUT, Streamatorium, T, TO, accumulator, clock, clockExample, connector, connectors, counter, defer, each, filter, gate, gateExample, getJSON, identity, invoke, jsonExample, latch, map, pluck, soak, split, tee, toggle, tokenizer,
+  var FROM, NULL, STDOUT, Streamatorium, T, TO, accumulator, clock, connector, connectors, counter, defer, each, filter, gate, getJSON, identity, invoke, latch, map, pluck, soak, split, tee, toggle, tokenizer,
     __slice = [].slice;
 
   STDOUT = function(atom) {
@@ -201,39 +201,14 @@
     };
   };
 
-  jsonExample = function() {
-    var headers, pipeline, rows, template;
-    rows = Observable([]);
-    headers = Observable([]);
-    rows.observe(function(newRows) {
-      var firstRow;
-      if (firstRow = newRows.first()) {
-        return headers(Object.keys(firstRow));
-      }
-    });
-    template = require('./templates/table')({
-      rows: rows,
-      headers: headers
-    });
-    pipeline = T(getJSON(T(rows)));
-    pipeline("https://api.github.com/repositories");
-    return $("body").append(template);
-  };
-
-  clockExample = function() {
-    return clock(1)(STDOUT);
-  };
-
-  gateExample = function() {
-    return 25..times(gate(clock(0.25))(soak(defer(T(NULL)))));
-  };
-
   module.exports = Streamatorium = {
     accumulator: accumulator,
+    clock: clock,
     counter: counter,
     each: each,
     filter: filter,
     FROM: FROM,
+    gate: gate,
     getJSON: getJSON,
     identity: identity,
     invoke: invoke,
@@ -246,6 +221,7 @@
         }
       });
     },
+    soak: soak,
     T: T,
     tee: tee,
     TO: TO,
