@@ -1,5 +1,5 @@
 (function() {
-  var NULL, STDOUT, Streamatorium, T, accumulator, clock, clockExample, connector, counter, defer, each, filter, gate, gateExample, getJSON, identity, invoke, jsonExample, latch, map, pluck, soak, split, tee, toggle, toggleExample, tokenizer,
+  var NULL, STDOUT, Streamatorium, T, accumulator, clock, clockExample, connector, counter, defer, each, filter, gate, gateExample, getJSON, identity, invoke, jsonExample, latch, map, pluck, soak, split, tee, toggle, tokenizer,
     __slice = [].slice;
 
   STDOUT = function(atom) {
@@ -218,10 +218,6 @@
     return 25..times(gate(clock(0.25))(soak(defer(T(NULL)))));
   };
 
-  toggleExample = function() {
-    return 10..times(toggle(STDOUT));
-  };
-
   module.exports = Streamatorium = {
     each: each,
     filter: filter,
@@ -237,8 +233,9 @@
         }
       });
     },
+    T: T,
     tee: tee,
-    T: T
+    toggle: toggle
   };
 
 }).call(this);
