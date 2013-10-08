@@ -14,7 +14,7 @@ The given program is then run with that environment and optionally a context for
       executeWithContext: (program, environment, context) ->
         args = Object.keys(environment)
 
-        values = args.map (name) -> 
+        values = args.map (name) ->
           environment[name]
 
         Function(args..., program).apply(context, values)
