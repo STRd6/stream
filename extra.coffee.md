@@ -15,5 +15,14 @@ Distribute inputs among a set of outputs.
 
 ----
 
+Promisory Pipe
+
+    promisory = (output) ->
+      (atom) ->
+        atom.then output
+
+    getJSON = (output) ->
+      map($.getJSON) promisory output
+
 >     #! setup
 >     require("/interactive_runtime")
