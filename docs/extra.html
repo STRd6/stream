@@ -2,7 +2,7 @@
 
 <html>
 <head>
-  <title>environment_helpers</title>
+  <title>extra</title>
   <meta http-equiv="content-type" content="text/html; charset=UTF-8">
   <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
   <link rel="stylesheet" media="all" href="http://strd6.github.io/cdn/parallel/docco.css" />
@@ -18,7 +18,7 @@
               <div class="pilwrap">
                 <a class="pilcrow" href="#section-1">&#182;</a>
               </div>
-              <h2 id="environment-helpers">Environment Helpers</h2>
+              <h2 id="distributor">Distributor</h2>
 
             </div>
             <div class="content"><pre><code class="lang-coffeescript">
@@ -32,21 +32,50 @@
               <div class="pilwrap">
                 <a class="pilcrow" href="#section-2">&#182;</a>
               </div>
-              <p>Some helpers that we add to the global environment so we can use our streams to
-their fullest.</p>
-<p>Adding <code>Object#tap</code> so it&#39;s easier to put any object into the beginnig of a
-stream.</p>
+              <p>Distribute inputs among a set of outputs.</p>
 
             </div>
-            <div class="content"><pre><code class="lang-coffeescript"><span class="keyword">unless</span> Object.prototype.tap
-  Object.defineProperty Object.prototype, <span class="string">"tap"</span>,
-    enumerable: <span class="literal">false</span>
-    configurable: <span class="literal">false</span>
-    writable: <span class="literal">false</span>
-    value: (fn) -&gt;
-      fn(<span class="keyword">this</span>)
+            <div class="content"><pre><code class="lang-coffeescript">window.<span class="function"><span class="title">distributor</span></span> = (outputs...) -&gt;
+  n = <span class="number">0</span>
+  (atom) -&gt;
+    outputs[n](atom)
 
-      <span class="keyword">return</span> <span class="keyword">this</span></code></pre>
+    n = (n + <span class="number">1</span>) % outputs.length</code></pre>
+</div>
+        </li>
+        
+        
+        <li id="section-3">
+            <div class="annotation">
+              <div class="pilwrap">
+                <a class="pilcrow" href="#section-3">&#182;</a>
+              </div>
+              <blockquote>
+<pre><code>#! pipe-run
+&quot;Hello&quot;.tap invoke(&quot;split&quot;, &quot;&quot;) each distributor(STDOUT, NULL)</code></pre>
+</blockquote>
+<hr>
+
+            </div>
+            <div class="content"><pre><code class="lang-coffeescript">
+</code></pre>
+</div>
+        </li>
+        
+        
+        <li id="section-4">
+            <div class="annotation">
+              <div class="pilwrap">
+                <a class="pilcrow" href="#section-4">&#182;</a>
+              </div>
+              <blockquote>
+<pre><code>#! setup
+require(&quot;/interactive_runtime&quot;)</code></pre>
+</blockquote>
+
+            </div>
+            <div class="content"><pre><code class="lang-coffeescript">
+</code></pre>
 </div>
         </li>
         
