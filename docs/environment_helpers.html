@@ -132,7 +132,7 @@ stream.</p>
     "extra.coffee.md": {
       "path": "extra.coffee.md",
       "mode": "100644",
-      "content": "Distributor\n-----------\n\nDistribute inputs among a set of outputs.\n\n    distributor = (outputs...) ->\n      n = 0\n      (atom) ->\n        outputs[n](atom)\n\n        n = (n + 1) % outputs.length\n\n>     #! pipe-run\n>     \"Hello\".tap invoke(\"split\", \"\") each distributor(STDOUT, NULL)\n\n----\n\n>     #! setup\n>     require(\"/interactive_runtime\")\n",
+      "content": "Distributor\n-----------\n\nDistribute inputs among a set of outputs.\n\n    distributor = (outputs...) ->\n      n = 0\n      (atom) ->\n        outputs[n](atom)\n\n        n = (n + 1) % outputs.length\n\n>     #! pipe-run\n>     \"Hello\".tap invoke(\"split\", \"\") each distributor(STDOUT, NULL)\n\n----\n\nPromisory Pipe\n\n    promisory = (output) ->\n      (atom) ->\n        atom.then output\n\n    getJSON = (output) ->\n      map($.getJSON) promisory output\n\n>     #! setup\n>     require(\"/interactive_runtime\")\n",
       "type": "blob"
     }
   },
@@ -184,7 +184,7 @@ stream.</p>
     },
     "extra": {
       "path": "extra",
-      "content": "(function() {\n  var distributor,\n    __slice = [].slice;\n\n  distributor = function() {\n    var n, outputs;\n    outputs = 1 <= arguments.length ? __slice.call(arguments, 0) : [];\n    n = 0;\n    return function(atom) {\n      outputs[n](atom);\n      return n = (n + 1) % outputs.length;\n    };\n  };\n\n}).call(this);\n\n//# sourceURL=extra.coffee",
+      "content": "(function() {\n  var distributor, getJSON, promisory,\n    __slice = [].slice;\n\n  distributor = function() {\n    var n, outputs;\n    outputs = 1 <= arguments.length ? __slice.call(arguments, 0) : [];\n    n = 0;\n    return function(atom) {\n      outputs[n](atom);\n      return n = (n + 1) % outputs.length;\n    };\n  };\n\n  promisory = function(output) {\n    return function(atom) {\n      return atom.then(output);\n    };\n  };\n\n  getJSON = function(output) {\n    return map($.getJSON)(promisory(output));\n  };\n\n}).call(this);\n\n//# sourceURL=extra.coffee",
       "type": "blob"
     }
   },
