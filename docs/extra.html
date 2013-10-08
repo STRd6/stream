@@ -35,7 +35,7 @@
               <p>Distribute inputs among a set of outputs.</p>
 
             </div>
-            <div class="content"><pre><code class="lang-coffeescript">window.<span class="function"><span class="title">distributor</span></span> = (outputs...) -&gt;
+            <div class="content"><pre><code class="lang-coffeescript"><span class="function"><span class="title">distributor</span></span> = (outputs...) -&gt;
   n = <span class="number">0</span>
   (atom) -&gt;
     outputs[n](atom)
@@ -161,7 +161,7 @@ require(&quot;/interactive_runtime&quot;)</code></pre>
     "extra.coffee.md": {
       "path": "extra.coffee.md",
       "mode": "100644",
-      "content": "Distributor\n-----------\n\nDistribute inputs among a set of outputs.\n\n    window.distributor = (outputs...) ->\n      n = 0\n      (atom) ->\n        outputs[n](atom)\n\n        n = (n + 1) % outputs.length\n\n>     #! pipe-run\n>     \"Hello\".tap invoke(\"split\", \"\") each distributor(STDOUT, NULL)\n\n----\n\n>     #! setup\n>     require(\"/interactive_runtime\")\n",
+      "content": "Distributor\n-----------\n\nDistribute inputs among a set of outputs.\n\n    distributor = (outputs...) ->\n      n = 0\n      (atom) ->\n        outputs[n](atom)\n\n        n = (n + 1) % outputs.length\n\n>     #! pipe-run\n>     \"Hello\".tap invoke(\"split\", \"\") each distributor(STDOUT, NULL)\n\n----\n\n>     #! setup\n>     require(\"/interactive_runtime\")\n",
       "type": "blob"
     }
   },
@@ -213,7 +213,7 @@ require(&quot;/interactive_runtime&quot;)</code></pre>
     },
     "extra": {
       "path": "extra",
-      "content": "(function() {\n  var __slice = [].slice;\n\n  window.distributor = function() {\n    var n, outputs;\n    outputs = 1 <= arguments.length ? __slice.call(arguments, 0) : [];\n    n = 0;\n    return function(atom) {\n      outputs[n](atom);\n      return n = (n + 1) % outputs.length;\n    };\n  };\n\n}).call(this);\n\n//# sourceURL=extra.coffee",
+      "content": "(function() {\n  var distributor,\n    __slice = [].slice;\n\n  distributor = function() {\n    var n, outputs;\n    outputs = 1 <= arguments.length ? __slice.call(arguments, 0) : [];\n    n = 0;\n    return function(atom) {\n      outputs[n](atom);\n      return n = (n + 1) % outputs.length;\n    };\n  };\n\n}).call(this);\n\n//# sourceURL=extra.coffee",
       "type": "blob"
     }
   },
