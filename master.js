@@ -67,21 +67,17 @@
   };
 
   pluck = function(name) {
-    return function(output) {
-      return function(atom) {
-        return output(atom[name]);
-      };
-    };
+    return map(function(atom) {
+      return atom[name];
+    });
   };
 
   invoke = function() {
     var args, name;
     name = arguments[0], args = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
-    return function(output) {
-      return function(atom) {
-        return output(atom[name].apply(atom, args));
-      };
-    };
+    return map(function(atom) {
+      return atom[name].apply(atom, args);
+    });
   };
 
   filter = function(fn) {
@@ -236,3 +232,5 @@
   };
 
 }).call(this);
+
+//# sourceURL=streamatorium.coffee
