@@ -3,7 +3,7 @@ Distributor
 
 Distribute inputs among a set of outputs.
 
-    window.distributor = (outputs...) ->
+    distributor = (outputs...) ->
       n = 0
       (atom) ->
         outputs[n](atom)
