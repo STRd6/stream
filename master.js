@@ -225,7 +225,6 @@
     },
     prettyPrint: prettyPrint,
     soak: soak,
-    T: T,
     tee: tee,
     TO: TO,
     toggle: toggle
