@@ -21,6 +21,8 @@ Promisory Pipe
       (atom) ->
         atom.then output
 
+Expanding a pipeline, don't even need to handle the atom functions at all here.
+
     getJSON = (output) ->
       map($.getJSON) promisory output
 
