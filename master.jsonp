@@ -70,7 +70,7 @@ window["STRd6/stream:master"]({
     "extra.coffee.md": {
       "path": "extra.coffee.md",
       "mode": "100644",
-      "content": "Distributor\n-----------\n\nDistribute inputs among a set of outputs.\n\n    distributor = (outputs...) ->\n      n = 0\n      (atom) ->\n        outputs[n](atom)\n\n        n = (n + 1) % outputs.length\n\n>     #! pipe-run\n>     \"Hello\".tap invoke(\"split\", \"\") each distributor(STDOUT, NULL)\n\n----\n\nPromisory Pipe\n\n    promisory = (output) ->\n      (atom) ->\n        atom.then output\n\n    getJSON = (output) ->\n      map($.getJSON) promisory output\n\n>     #! setup\n>     require(\"/interactive_runtime\")\n",
+      "content": "Distributor\n-----------\n\nDistribute inputs among a set of outputs.\n\n    distributor = (outputs...) ->\n      n = 0\n      (atom) ->\n        outputs[n](atom)\n\n        n = (n + 1) % outputs.length\n\n>     #! pipe-run\n>     \"Hello\".tap invoke(\"split\", \"\") each distributor(STDOUT, NULL)\n\n----\n\nPromisory Pipe\n\n    promisory = (output) ->\n      (atom) ->\n        atom.then output\n\nExpanding a pipeline, don't even need to handle the atom functions at all here.\n\n    getJSON = (output) ->\n      map($.getJSON) promisory output\n\n>     #! setup\n>     require(\"/interactive_runtime\")\n",
       "type": "blob"
     }
   },
