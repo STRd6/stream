@@ -33,7 +33,7 @@ originate in sources and end up in sinks.
 
 Example atoms:
 
->     0, 1, "", true, false, "heyyy", 954, 
+>     0, 1, "", true, false, "heyyy", 954,
 >     {}, {name: "flambo"}, [{...}, ...]
 
 Sinks
@@ -45,7 +45,7 @@ A sink is a function that accepts an atom.
 
 `STDOUT` logs any atom to the console
 
-    STDOUT = (atom) -> 
+    STDOUT = (atom) ->
       console.log atom
 
 The `NULL` sink eats any atom passed to it and does nothing
@@ -101,7 +101,7 @@ This works due to function composition:
 
 ----
 
-`identity` passes items through to the output unchanged. It is more useful as a 
+`identity` passes items through to the output unchanged. It is more useful as a
 demonstration than as a practical pipe.
 
     identity = (output) ->
@@ -144,7 +144,7 @@ Get JSON data from input urls then pass it along.
     getJSON = (output) ->
       (url) ->
         $.getJSON(url).then output
-    
+
 >     #! pipe
 >     "https://api.github.com/users/STRd6".tap getJSON prettyPrint STDOUT
 
@@ -161,7 +161,7 @@ a sink that outputs to all of the sinks it was constructed with.
         outputs.forEach (output) ->
           output atom
 
-`tee`, similar to unix tee, splits a stream so that each atom flows to two 
+`tee`, similar to unix tee, splits a stream so that each atom flows to two
 sinks.
 
     tee = (sink) ->
@@ -211,24 +211,20 @@ function to each atom as it passes through.
 
 `pluck` selects an attribute from an atom and passes that attribute on.
 
-    pluck = (name) -> 
-      (output) ->
-        (atom) ->
-          output atom[name]
+    pluck = (name) ->
+      map (atom) -> atom[name]
 
 >     #! pipe
 >     {name: "Duder"}.tap pluck("name") STDOUT
 
 ----
 
-`invoke` generates a pipe that invokes the named function with the given 
+`invoke` generates a pipe that invokes the named function with the given
 arguments on each item passing through then passes the result on to the sink it
 is connected to.
 
     invoke = (name, args...) ->
-      (output) ->
-        (atom) ->
-          output atom[name](args...)
+      map (atom) -> atom[name](args...)
 
 >     #! pipe
 >     "Welcome to the Streamatorium".tap invoke("split", "") T each STDOUT
