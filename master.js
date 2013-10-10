@@ -1,5 +1,5 @@
 (function() {
-  var FROM, NULL, STDOUT, Streamatorium, T, TO, accumulator, clock, connector, connectors, counter, defer, each, filter, gate, getJSON, identity, invoke, latch, map, pluck, prettyPrint, soak, split, tee, toggle, tokenizer,
+  var FROM, NULL, STDOUT, Streamatorium, T, TO, accumulator, clock, connector, connectors, counter, defer, each, filter, gate, getJSON, identity, invoke, latch, limit, map, pluck, prettyPrint, soak, split, tee, toggle, tokenizer,
     __slice = [].slice;
 
   STDOUT = function(atom) {
@@ -134,6 +134,19 @@
     };
   };
 
+  limit = function(n) {
+    return function(output) {
+      var count;
+      count = 0;
+      return function(atom) {
+        if (count < n) {
+          output(atom);
+        }
+        return count += 1;
+      };
+    };
+  };
+
   connector = function() {
     var atoms, collector, flush, output;
     atoms = [];
@@ -214,6 +227,7 @@
     getJSON: getJSON,
     identity: identity,
     invoke: invoke,
+    limit: limit,
     map: map,
     pluck: pluck,
     pollute: function() {
