@@ -14,3 +14,11 @@
         [1, 2, 3, 4, 5].forEach filter(even) push
 
         assert.equal results.length, 2
+
+      it "should limit", ->
+        results = []
+        push = (item) -> results.push item
+
+        [0..99].forEach limit(5) push
+
+        assert.equal results.length, 5

@@ -25,8 +25,7 @@ console.
 
 >     popular = (repo) -> repo.watchers > 100
 >
->     json("https://api.github.com/repos/") each filter(popular) STDOUT
-
+>     "https://api.github.com/repositories".tap getJSON each limit(10) pluck("url") getJSON filter(popular) pluck("name") STDOUT
 
 Atoms are any object. Atoms form streams by flowing through pipes. Atoms
 originate in sources and end up in sinks.
@@ -314,6 +313,18 @@ of word strings.
         else
           word += character
 
+----
+
+Limit the number of items that can flow through, silently discarding any beyond
+the limit.
+
+    limit = (n) ->
+      (output) ->
+        count = 0
+        (atom) ->
+          output(atom) if count < n
+          count += 1
+
 Connectors
 ----------
 
@@ -424,6 +435,7 @@ Export
       getJSON: getJSON
       identity: identity
       invoke: invoke
+      limit: limit
       map: map
       pluck: pluck
       pollute: ->
