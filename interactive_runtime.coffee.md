@@ -57,7 +57,7 @@ Helpers
 
 Execute a program attaching it's output to the output element.
 
-    executeProgram = (program, outputElement) ->    
+    executeProgram = (program, outputElement) ->
       STDOUT = (atom) ->
         outputElement.textContent += "#{atom}\n"
 
