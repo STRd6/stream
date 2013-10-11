@@ -28,7 +28,7 @@
     "interactive_runtime.coffee.md": {
       "path": "interactive_runtime.coffee.md",
       "mode": "100644",
-      "content": "Interactive Runtime\n-------------------\n\nRegister our interactive documentation runtime components.\n\nThese requires set up our interactive documentation environment.\n\n    require(\"/environment_helpers\")\n    require(\"/streamatorium\").pollute()\n    {executeWithContext} = require(\"/util\")\n\n`pipe` examples provide the pipe functions and dislpay all atoms received into\n`STDOUT` on the righthand side.\n\n    Interactive.register \"pipe\", ({source, runtimeElement}) ->\n      program = CoffeeScript.compile(source)\n\n      outputElement = document.createElement \"pre\"\n      runtimeElement.empty().append outputElement\n\n      STDOUT = (atom) ->\n        outputElement.textContent += \"#{atom}\\n\"\n\n      executeWithContext program,\n        T: tee(STDOUT)\n        STDOUT: STDOUT\n        NULL: ->\n\n`pipe-run` examples are almost the same as `pipe` examples, but provide a\nbutton to run rather than auto-running.\n\n    Interactive.register \"pipe-run\", ({source, runtimeElement}) ->\n      # HACK: using the element to hold our state\n      runtimeElement.program = CoffeeScript.compile(source)\n\n      # Init\n      if runtimeElement.is(\":empty\")\n        runButton = $ \"<button>\",\n          text: \"Run\"\n          css:\n            position: \"absolute\"\n            marginTop: \"-2.5em\"\n            marginLeft: \"-1.5em\"\n          click: ->\n            outputElement.textContent = \"\"\n\n            executeProgram runtimeElement.program, outputElement\n\n        outputElement = document.createElement \"pre\"\n\n        runtimeElement\n          .append(runButton)\n          .append(outputElement)\n\nHelpers\n-------\n\nExecute a program attaching it's output to the output element.\n\n    executeProgram = (program, outputElement) ->    \n      STDOUT = (atom) ->\n        outputElement.textContent += \"#{atom}\\n\"\n\n      executeWithContext program,\n        T: tee(STDOUT)\n        STDOUT: STDOUT\n        NULL: ->\n",
+      "content": "Interactive Runtime\n-------------------\n\nRegister our interactive documentation runtime components.\n\nThese requires set up our interactive documentation environment.\n\n    require(\"/environment_helpers\")\n    require(\"/streamatorium\").pollute()\n    {executeWithContext} = require(\"/util\")\n\n`pipe` examples provide the pipe functions and dislpay all atoms received into\n`STDOUT` on the righthand side.\n\n    Interactive.register \"pipe\", ({source, runtimeElement}) ->\n      program = CoffeeScript.compile(source)\n\n      outputElement = document.createElement \"pre\"\n      runtimeElement.empty().append outputElement\n\n      STDOUT = (atom) ->\n        outputElement.textContent += \"#{atom}\\n\"\n\n      executeWithContext program,\n        T: tee(STDOUT)\n        STDOUT: STDOUT\n        NULL: ->\n\n`pipe-run` examples are almost the same as `pipe` examples, but provide a\nbutton to run rather than auto-running.\n\n    Interactive.register \"pipe-run\", ({source, runtimeElement}) ->\n      # HACK: using the element to hold our state\n      runtimeElement.program = CoffeeScript.compile(source)\n\n      # Init\n      if runtimeElement.is(\":empty\")\n        runButton = $ \"<button>\",\n          text: \"Run\"\n          css:\n            position: \"absolute\"\n            marginTop: \"-2.5em\"\n            marginLeft: \"-1.5em\"\n          click: ->\n            outputElement.textContent = \"\"\n\n            executeProgram runtimeElement.program, outputElement\n\n        outputElement = document.createElement \"pre\"\n\n        runtimeElement\n          .append(runButton)\n          .append(outputElement)\n\nHelpers\n-------\n\nExecute a program attaching it's output to the output element.\n\n    executeProgram = (program, outputElement) ->\n      STDOUT = (atom) ->\n        outputElement.textContent += \"#{atom}\\n\"\n\n      executeWithContext program,\n        T: tee(STDOUT)\n        STDOUT: STDOUT\n        NULL: ->\n",
       "type": "blob"
     },
     "notes.coffee.md": {
@@ -138,7 +138,7 @@
     "owner": {
       "login": "STRd6",
       "id": 18894,
-      "avatar_url": "https://2.gravatar.com/avatar/33117162fff8a9cf50544a604f60c045?d=https%3A%2F%2Fidenticons.github.com%2F39df222bffe39629d904e4883eabc654.png",
+      "avatar_url": "https://0.gravatar.com/avatar/33117162fff8a9cf50544a604f60c045?d=https%3A%2F%2Fidenticons.github.com%2F39df222bffe39629d904e4883eabc654.png",
       "gravatar_id": "33117162fff8a9cf50544a604f60c045",
       "url": "https://api.github.com/users/STRd6",
       "html_url": "https://github.com/STRd6",
@@ -194,14 +194,14 @@
     "notifications_url": "https://api.github.com/repos/STRd6/stream/notifications{?since,all,participating}",
     "labels_url": "https://api.github.com/repos/STRd6/stream/labels{/name}",
     "created_at": "2013-09-16T17:03:24Z",
-    "updated_at": "2013-10-08T00:47:07Z",
-    "pushed_at": "2013-10-08T00:47:06Z",
+    "updated_at": "2013-10-10T01:53:24Z",
+    "pushed_at": "2013-10-10T01:53:24Z",
     "git_url": "git://github.com/STRd6/stream.git",
     "ssh_url": "git@github.com:STRd6/stream.git",
     "clone_url": "https://github.com/STRd6/stream.git",
     "svn_url": "https://github.com/STRd6/stream",
     "homepage": null,
-    "size": 3516,
+    "size": 1080,
     "watchers_count": 3,
     "language": "CoffeeScript",
     "has_issues": true,
