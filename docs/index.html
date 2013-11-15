@@ -725,8 +725,8 @@ receives. It doesn&#39;t matter what atom it receives.</p>
               <div class="pilwrap">
                 <a class="pilcrow" href="#section-42">&#182;</a>
               </div>
-              <p>Count number of atoms that flowed through, outputting the total count each time
-and atom is received.</p>
+              <p>A counter acts like a pedometer, counting each atom that flows through. It
+outputs the total count anytime an atom is received. It can count anything.</p>
 
             </div>
             <div class="content"><pre><code class="lang-coffeescript"><span class="function"><span class="title">counter</span></span> = (output) -&gt;
@@ -744,7 +744,7 @@ and atom is received.</p>
               </div>
               <blockquote>
 <pre><code>#! pipe
-[1, 1, 1, 1, 1].map counter STDOUT</code></pre>
+[1, {}, &#39;a&#39;, [4], 0].map counter STDOUT</code></pre>
 </blockquote>
 <hr>
 
@@ -760,8 +760,9 @@ and atom is received.</p>
               <div class="pilwrap">
                 <a class="pilcrow" href="#section-44">&#182;</a>
               </div>
-              <p>Sum the atoms that flow through and output the current total each time an atom
-is received.</p>
+              <p>An accumulator sums the atoms that flow through and outputs the current total 
+each time an atom is received.</p>
+<p>This example sums the odd numbers to produce a list of squares.</p>
 
             </div>
             <div class="content"><pre><code class="lang-coffeescript"><span class="function"><span class="title">accumulator</span></span> = (output) -&gt;
@@ -779,7 +780,9 @@ is received.</p>
               </div>
               <blockquote>
 <pre><code>#! pipe
-[0..9].map accumulator STDOUT</code></pre>
+odd = (x) -&gt; x % 2
+
+[1..20].map filter(odd) accumulator STDOUT</code></pre>
 </blockquote>
 <hr>
 
