@@ -272,8 +272,8 @@ receives. It doesn't matter what atom it receives.
 
 ----
 
-Count number of atoms that flowed through, outputting the total count each time
-and atom is received.
+A counter acts like a pedometer, counting each atom that flows through. It
+outputs the total count anytime an atom is received. It can count anything.
 
     counter = (output) ->
       value = 0
@@ -281,12 +281,14 @@ and atom is received.
         output value += 1
 
 >     #! pipe
->     [1, 1, 1, 1, 1].map counter STDOUT
+>     [1, {}, 'a', [4], 0].map counter STDOUT
 
 ----
 
-Sum the atoms that flow through and output the current total each time an atom
-is received.
+An accumulator sums the atoms that flow through and outputs the current total 
+each time an atom is received.
+
+This example sums the odd numbers to produce a list of squares.
 
     accumulator = (output) ->
       value = 0
@@ -294,7 +296,9 @@ is received.
         output value += atom
 
 >     #! pipe
->     [0..9].map accumulator STDOUT
+>     odd = (x) -> x % 2
+>
+>     [1..20].map filter(odd) accumulator STDOUT
 
 ----
 
