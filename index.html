@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html manifest="manifest.appcache?1384561701823">
+<html manifest="manifest.appcache?1391821063819">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <script src="http://strd6.github.io/require/v0.2.2.js"></script>
@@ -7,10 +7,162 @@
 <body>
 <script>
 ;(function(PACKAGE) {
+var oldRequire = window.Require;
+(function() {
+  var cacheFor, circularGuard, defaultEntryPoint, fileSeparator, generateRequireFn, global, isPackage, loadModule, loadPackage, loadPath, normalizePath, rootModule, startsWith,
+    __slice = [].slice;
+
+  fileSeparator = '/';
+
+  global = window;
+
+  defaultEntryPoint = "main";
+
+  circularGuard = {};
+
+  rootModule = {
+    path: ""
+  };
+
+  loadPath = function(parentModule, pkg, path) {
+    var cache, localPath, module, normalizedPath;
+    if (startsWith(path, '/')) {
+      localPath = [];
+    } else {
+      localPath = parentModule.path.split(fileSeparator);
+    }
+    normalizedPath = normalizePath(path, localPath);
+    cache = cacheFor(pkg);
+    if (module = cache[normalizedPath]) {
+      if (module === circularGuard) {
+        throw "Circular dependency detected when requiring " + normalizedPath;
+      }
+    } else {
+      cache[normalizedPath] = circularGuard;
+      try {
+        cache[normalizedPath] = module = loadModule(pkg, normalizedPath);
+      } finally {
+        if (cache[normalizedPath] === circularGuard) {
+          delete cache[normalizedPath];
+        }
+      }
+    }
+    return module.exports;
+  };
+
+  normalizePath = function(path, base) {
+    var piece, result;
+    if (base == null) {
+      base = [];
+    }
+    base = base.concat(path.split(fileSeparator));
+    result = [];
+    while (base.length) {
+      switch (piece = base.shift()) {
+        case "..":
+          result.pop();
+          break;
+        case "":
+        case ".":
+          break;
+        default:
+          result.push(piece);
+      }
+    }
+    return result.join(fileSeparator);
+  };
+
+  loadPackage = function(parentModule, pkg, path) {
+    path || (path = pkg.entryPoint || defaultEntryPoint);
+    return loadPath(parentModule, pkg, path);
+  };
+
+  loadModule = function(pkg, path) {
+    var args, context, dirname, file, module, program, values;
+    if (!(file = pkg.distribution[path])) {
+      throw "Could not find file at " + path + " in " + pkg.name;
+    }
+    program = file.content;
+    dirname = path.split(fileSeparator).slice(0, -1).join(fileSeparator);
+    module = {
+      path: dirname,
+      exports: {}
+    };
+    context = {
+      require: generateRequireFn(pkg, module),
+      global: global,
+      module: module,
+      exports: module.exports,
+      PACKAGE: pkg,
+      __filename: path,
+      __dirname: dirname
+    };
+    args = Object.keys(context);
+    values = args.map(function(name) {
+      return context[name];
+    });
+    Function.apply(null, __slice.call(args).concat([program])).apply(module, values);
+    return module;
+  };
+
+  isPackage = function(path) {
+    if (!(startsWith(path, fileSeparator) || startsWith(path, "." + fileSeparator) || startsWith(path, ".." + fileSeparator))) {
+      return path.split(fileSeparator)[0];
+    } else {
+      return false;
+    }
+  };
+
+  generateRequireFn = function(pkg, module) {
+    if (module == null) {
+      module = rootModule;
+    }
+    return function(path) {
+      var otherPackage, otherPackageName, packagePath;
+      if (otherPackageName = isPackage(path)) {
+        packagePath = path.replace(otherPackageName, "");
+        if (!(otherPackage = pkg.dependencies[otherPackageName])) {
+          throw "Package: " + otherPackageName + " not found.";
+        }
+        if (otherPackage.name == null) {
+          otherPackage.name = otherPackageName;
+        }
+        return loadPackage(rootModule, otherPackage, packagePath);
+      } else {
+        return loadPath(module, pkg, path);
+      }
+    };
+  };
+
+  if (typeof exports !== "undefined" && exports !== null) {
+    exports.generateFor = generateRequireFn;
+  } else {
+    global.Require = {
+      generateFor: generateRequireFn
+    };
+  }
+
+  startsWith = function(string, prefix) {
+    return string.lastIndexOf(prefix, 0) === 0;
+  };
+
+  cacheFor = function(pkg) {
+    if (pkg.cache) {
+      return pkg.cache;
+    }
+    Object.defineProperty(pkg, "cache", {
+      value: {}
+    });
+    return pkg.cache;
+  };
+
+}).call(this);
+
+//# sourceURL=main.coffee
 var require = Require.generateFor(PACKAGE);
+window.Require = oldRequire;
 require('./streamatorium')
 })({
-  "version": "0.1.0",
   "source": {
     "LICENSE": {
       "path": "LICENSE",
@@ -33,7 +185,7 @@ require('./streamatorium')
     "extra.coffee.md": {
       "path": "extra.coffee.md",
       "mode": "100644",
-      "content": "Distributor\n-----------\n\nDistribute inputs among a set of outputs.\n\n    distributor = (outputs...) ->\n      n = 0\n      (atom) ->\n        outputs[n](atom)\n\n        n = (n + 1) % outputs.length\n\n>     #! pipe-run\n>     \"Hello\".tap invoke(\"split\", \"\") each distributor(STDOUT, NULL)\n\n----\n\nPromisory Pipe\n\n    promisory = (output) ->\n      (atom) ->\n        atom.then output\n\nExpanding a pipeline, don't even need to handle the atom functions at all here.\n\n    getJSON = (output) ->\n      map($.getJSON) promisory output\n\n>     #! setup\n>     require(\"/interactive_runtime\")\n",
+      "content": "Distributor\n-----------\n\nDistribute inputs among a set of outputs.\n\n    distributor = (outputs...) ->\n      n = 0\n      (atom) ->\n        outputs[n](atom)\n\n        n = (n + 1) % outputs.length\n\n>     #! pipe-run\n>     \"Hello\".tap invoke(\"split\", \"\") each distributor(STDOUT, NULL)\n\n----\n\nRandom\n------\n\nTODO: Hook up to a clock?\n\n    rand = (n) ->\n      (output) ->\n        output(Math.floor Math.random() * n)\n\n>     #! pipe-run\n>     rand(10) STDOUT\n\n----\n\nPromisory Pipe\n\n    promisory = (output) ->\n      (atom) ->\n        atom.then output\n\nExpanding a pipeline, don't even need to handle the atom functions at all here.\n\n    getJSON = (output) ->\n      map($.getJSON) promisory output\n\n>     #! setup\n>     require(\"/interactive_runtime\")\n",
       "type": "blob"
     },
     "interactive_runtime.coffee.md": {
@@ -93,7 +245,7 @@ require('./streamatorium')
     },
     "extra": {
       "path": "extra",
-      "content": "(function() {\n  var distributor, getJSON, promisory,\n    __slice = [].slice;\n\n  distributor = function() {\n    var n, outputs;\n    outputs = 1 <= arguments.length ? __slice.call(arguments, 0) : [];\n    n = 0;\n    return function(atom) {\n      outputs[n](atom);\n      return n = (n + 1) % outputs.length;\n    };\n  };\n\n  promisory = function(output) {\n    return function(atom) {\n      return atom.then(output);\n    };\n  };\n\n  getJSON = function(output) {\n    return map($.getJSON)(promisory(output));\n  };\n\n}).call(this);\n\n//# sourceURL=extra.coffee",
+      "content": "(function() {\n  var distributor, getJSON, promisory, rand,\n    __slice = [].slice;\n\n  distributor = function() {\n    var n, outputs;\n    outputs = 1 <= arguments.length ? __slice.call(arguments, 0) : [];\n    n = 0;\n    return function(atom) {\n      outputs[n](atom);\n      return n = (n + 1) % outputs.length;\n    };\n  };\n\n  rand = function(n) {\n    return function(output) {\n      return output(Math.floor(Math.random() * n));\n    };\n  };\n\n  promisory = function(output) {\n    return function(atom) {\n      return atom.then(output);\n    };\n  };\n\n  getJSON = function(output) {\n    return map($.getJSON)(promisory(output));\n  };\n\n}).call(this);\n\n//# sourceURL=extra.coffee",
       "type": "blob"
     },
     "interactive_runtime": {
@@ -137,14 +289,14 @@ require('./streamatorium')
       "type": "blob"
     }
   },
-  "entryPoint": "streamatorium",
-  "dependencies": {},
-  "remoteDependencies": [
-    "http://strd6.github.io/require/v0.2.2.js"
-  ],
   "progenitor": {
     "url": "http://strd6.github.io/editor/"
   },
+  "version": "0.1.0",
+  "entryPoint": "streamatorium",
+  "remoteDependencies": [
+    "http://strd6.github.io/require/v0.2.2.js"
+  ],
   "repository": {
     "id": 12873038,
     "name": "stream",
@@ -152,7 +304,7 @@ require('./streamatorium')
     "owner": {
       "login": "STRd6",
       "id": 18894,
-      "avatar_url": "https://2.gravatar.com/avatar/33117162fff8a9cf50544a604f60c045?d=https%3A%2F%2Fidenticons.github.com%2F39df222bffe39629d904e4883eabc654.png&r=x",
+      "avatar_url": "https://gravatar.com/avatar/33117162fff8a9cf50544a604f60c045?d=https%3A%2F%2Fidenticons.github.com%2F39df222bffe39629d904e4883eabc654.png&r=x",
       "gravatar_id": "33117162fff8a9cf50544a604f60c045",
       "url": "https://api.github.com/users/STRd6",
       "html_url": "https://github.com/STRd6",
@@ -209,14 +361,14 @@ require('./streamatorium')
     "labels_url": "https://api.github.com/repos/STRd6/stream/labels{/name}",
     "releases_url": "https://api.github.com/repos/STRd6/stream/releases{/id}",
     "created_at": "2013-09-16T17:03:24Z",
-    "updated_at": "2013-11-15T23:35:32Z",
-    "pushed_at": "2013-11-15T23:35:30Z",
+    "updated_at": "2013-11-16T00:28:27Z",
+    "pushed_at": "2013-11-16T00:28:25Z",
     "git_url": "git://github.com/STRd6/stream.git",
     "ssh_url": "git@github.com:STRd6/stream.git",
     "clone_url": "https://github.com/STRd6/stream.git",
     "svn_url": "https://github.com/STRd6/stream",
     "homepage": null,
-    "size": 1760,
+    "size": 396,
     "stargazers_count": 3,
     "watchers_count": 3,
     "language": "CoffeeScript",
@@ -240,7 +392,8 @@ require('./streamatorium')
     "subscribers_count": 1,
     "branch": "master",
     "defaultBranch": "master"
-  }
+  },
+  "dependencies": {}
 });
 </script>
 </body>
