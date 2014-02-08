@@ -15,6 +15,20 @@ Distribute inputs among a set of outputs.
 
 ----
 
+Random
+------
+
+TODO: Hook up to a clock?
+
+    rand = (n) ->
+      (output) ->
+        output(Math.floor Math.random() * n)
+
+>     #! pipe-run
+>     rand(10) STDOUT
+
+----
+
 Promisory Pipe
 
     promisory = (output) ->
