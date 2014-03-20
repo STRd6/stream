@@ -39,7 +39,7 @@ window["STRd6/stream:master"]({
     "pixie.cson": {
       "path": "pixie.cson",
       "mode": "100644",
-      "content": "entryPoint: \"streamatorium\"\nversion: \"0.1.0\"\nremoteDependencies: [\n  \"http://strd6.github.io/require/v0.2.2.js\"\n]\n",
+      "content": "entryPoint: \"streamatorium\"\nversion: \"0.1.0\"\n",
       "type": "blob"
     },
     "sicp_stream.coffee.md": {
@@ -96,7 +96,7 @@ window["STRd6/stream:master"]({
     },
     "pixie": {
       "path": "pixie",
-      "content": "module.exports = {\"entryPoint\":\"streamatorium\",\"version\":\"0.1.0\",\"remoteDependencies\":[\"http://strd6.github.io/require/v0.2.2.js\"]};",
+      "content": "module.exports = {\"entryPoint\":\"streamatorium\",\"version\":\"0.1.0\"};",
       "type": "blob"
     },
     "sicp_stream": {
@@ -135,9 +135,6 @@ window["STRd6/stream:master"]({
   },
   "version": "0.1.0",
   "entryPoint": "streamatorium",
-  "remoteDependencies": [
-    "http://strd6.github.io/require/v0.2.2.js"
-  ],
   "repository": {
     "id": 12873038,
     "name": "stream",
