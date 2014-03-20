@@ -111,7 +111,7 @@ window["STRd6/stream:master"]({
     },
     "templates/table": {
       "path": "templates/table",
-      "content": "module.exports = Function(\"return \" + HAMLjr.compile(\"\\n\\n%table\\n  %thead\\n    %tr\\n      - each @headers, (header) ->\\n        %th= header\\n  %tbody\\n    - each @rows, (row) ->\\n      %tr\\n        - Object.keys(row).each (name) ->\\n          %td= row[name]\\n\", {compiler: CoffeeScript}))()",
+      "content": "Runtime = require(\"/_lib/hamljr_runtime\");\n\nmodule.exports = (function(data) {\n  return (function() {\n    var __runtime;\n    __runtime = Runtime(this);\n    __runtime.push(document.createDocumentFragment());\n    __runtime.push(document.createElement(\"table\"));\n    __runtime.push(document.createElement(\"thead\"));\n    __runtime.push(document.createElement(\"tr\"));\n    __runtime.each(this.headers, function(header) {\n      __runtime.push(document.createElement(\"th\"));\n      __runtime.text(header);\n      return __runtime.pop();\n    });\n    __runtime.pop();\n    __runtime.pop();\n    __runtime.push(document.createElement(\"tbody\"));\n    __runtime.each(this.rows, function(row) {\n      __runtime.push(document.createElement(\"tr\"));\n      Object.keys(row).each(function(name) {\n        __runtime.push(document.createElement(\"td\"));\n        __runtime.text(row[name]);\n        return __runtime.pop();\n      });\n      return __runtime.pop();\n    });\n    __runtime.pop();\n    __runtime.pop();\n    return __runtime.pop();\n  }).call(data);\n});\n",
       "type": "blob"
     },
     "test/stream": {
@@ -122,6 +122,11 @@ window["STRd6/stream:master"]({
     "util": {
       "path": "util",
       "content": "(function() {\n  var __slice = [].slice;\n\n  module.exports = {\n    executeWithContext: function(program, environment, context) {\n      var args, values;\n      args = Object.keys(environment);\n      values = args.map(function(name) {\n        return environment[name];\n      });\n      return Function.apply(null, __slice.call(args).concat([program])).apply(context, values);\n    }\n  };\n\n}).call(this);\n\n//# sourceURL=util.coffee",
+      "type": "blob"
+    },
+    "_lib/hamljr_runtime": {
+      "path": "_lib/hamljr_runtime",
+      "content": "(function() {\n  var Runtime, dataName, document,\n    __slice = [].slice;\n\n  dataName = \"__hamlJR_data\";\n\n  if (typeof window !== \"undefined\" && window !== null) {\n    document = window.document;\n  } else {\n    document = global.document;\n  }\n\n  Runtime = function(context) {\n    var append, bindObservable, classes, id, lastParent, observeAttribute, observeText, pop, push, render, stack, top;\n    stack = [];\n    lastParent = function() {\n      var element, i;\n      i = stack.length - 1;\n      while ((element = stack[i]) && element.nodeType === 11) {\n        i -= 1;\n      }\n      return element;\n    };\n    top = function() {\n      return stack[stack.length - 1];\n    };\n    append = function(child) {\n      var _ref;\n      if ((_ref = top()) != null) {\n        _ref.appendChild(child);\n      }\n      return child;\n    };\n    push = function(child) {\n      return stack.push(child);\n    };\n    pop = function() {\n      return append(stack.pop());\n    };\n    render = function(child) {\n      push(child);\n      return pop();\n    };\n    bindObservable = function(element, value, update) {\n      var observable, unobserve;\n      if (typeof Observable === \"undefined\" || Observable === null) {\n        update(value);\n        return;\n      }\n      observable = Observable(value);\n      observable.observe(update);\n      update(observable());\n      unobserve = function() {\n        return observable.stopObserving(update);\n      };\n      element.addEventListener(\"DOMNodeRemoved\", unobserve, true);\n      return element;\n    };\n    id = function() {\n      var element, sources, update, value;\n      sources = 1 <= arguments.length ? __slice.call(arguments, 0) : [];\n      element = top();\n      update = function(newValue) {\n        if (typeof newValue === \"function\") {\n          newValue = newValue();\n        }\n        return element.id = newValue;\n      };\n      value = function() {\n        var possibleValues;\n        possibleValues = sources.map(function(source) {\n          if (typeof source === \"function\") {\n            return source();\n          } else {\n            return source;\n          }\n        }).filter(function(idValue) {\n          return idValue != null;\n        });\n        return possibleValues[possibleValues.length - 1];\n      };\n      return bindObservable(element, value, update);\n    };\n    classes = function() {\n      var element, sources, update, value;\n      sources = 1 <= arguments.length ? __slice.call(arguments, 0) : [];\n      element = top();\n      update = function(newValue) {\n        if (typeof newValue === \"function\") {\n          newValue = newValue();\n        }\n        return element.className = newValue;\n      };\n      value = function() {\n        var possibleValues;\n        possibleValues = sources.map(function(source) {\n          if (typeof source === \"function\") {\n            return source();\n          } else {\n            return source;\n          }\n        }).filter(function(sourceValue) {\n          return sourceValue != null;\n        });\n        return possibleValues.join(\" \");\n      };\n      return bindObservable(element, value, update);\n    };\n    observeAttribute = function(name, value) {\n      var element, update;\n      element = top();\n      update = function(newValue) {\n        return element.setAttribute(name, newValue);\n      };\n      return bindObservable(element, value, update);\n    };\n    observeText = function(value) {\n      var element, update;\n      switch (value != null ? value.nodeType : void 0) {\n        case 1:\n        case 3:\n        case 11:\n          render(value);\n          return;\n      }\n      element = document.createTextNode('');\n      update = function(newValue) {\n        return element.nodeValue = newValue;\n      };\n      bindObservable(element, value, update);\n      return render(element);\n    };\n    return {\n      push: push,\n      pop: pop,\n      id: id,\n      classes: classes,\n      attribute: observeAttribute,\n      text: observeText,\n      filter: function(name, content) {},\n      each: function(items, fn) {\n        var elements, parent, replace;\n        items = Observable(items);\n        elements = [];\n        parent = lastParent();\n        items.observe(function(newItems) {\n          return replace(elements, newItems);\n        });\n        replace = function(oldElements, items) {\n          var firstElement;\n          if (oldElements) {\n            firstElement = oldElements[0];\n            parent = (firstElement != null ? firstElement.parentElement : void 0) || parent;\n            elements = items.map(function(item, index, array) {\n              var element;\n              element = fn.call(item, item, index, array);\n              element[dataName] = item;\n              parent.insertBefore(element, firstElement);\n              return element;\n            });\n            return oldElements.each(function(element) {\n              return element.remove();\n            });\n          } else {\n            return elements = items.map(function(item, index, array) {\n              var element;\n              element = fn.call(item, item, index, array);\n              element[dataName] = item;\n              return element;\n            });\n          }\n        };\n        return replace(null, items);\n      },\n      \"with\": function(item, fn) {\n        var element, replace, value;\n        element = null;\n        item = Observable(item);\n        item.observe(function(newValue) {\n          return replace(element, newValue);\n        });\n        value = item();\n        replace = function(oldElement, value) {\n          var parent;\n          element = fn.call(value);\n          element[dataName] = item;\n          if (oldElement) {\n            parent = oldElement.parentElement;\n            parent.insertBefore(element, oldElement);\n            return oldElement.remove();\n          } else {\n\n          }\n        };\n        return replace(element, value);\n      },\n      on: function(eventName, fn) {\n        var element;\n        element = lastParent();\n        if (eventName === \"change\") {\n          switch (element.nodeName) {\n            case \"SELECT\":\n              element[\"on\" + eventName] = function() {\n                var selectedOption;\n                selectedOption = this.options[this.selectedIndex];\n                return fn(selectedOption[dataName]);\n              };\n              if (fn.observe) {\n                return fn.observe(function(newValue) {\n                  return Array.prototype.forEach.call(element.options, function(option, index) {\n                    if (option[dataName] === newValue) {\n                      return element.selectedIndex = index;\n                    }\n                  });\n                });\n              }\n              break;\n            default:\n              element[\"on\" + eventName] = function() {\n                return fn(element.value);\n              };\n              if (fn.observe) {\n                return fn.observe(function(newValue) {\n                  return element.value = newValue;\n                });\n              }\n          }\n        } else {\n          return element[\"on\" + eventName] = function(event) {\n            return fn.call(context, event);\n          };\n        }\n      }\n    };\n  };\n\n  module.exports = Runtime;\n\n}).call(this);\n\n//# sourceURL=runtime.coffee",
       "type": "blob"
     }
   },
@@ -140,7 +145,7 @@ window["STRd6/stream:master"]({
     "owner": {
       "login": "STRd6",
       "id": 18894,
-      "avatar_url": "https://gravatar.com/avatar/33117162fff8a9cf50544a604f60c045?d=https%3A%2F%2Fidenticons.github.com%2F39df222bffe39629d904e4883eabc654.png&r=x",
+      "avatar_url": "https://avatars.githubusercontent.com/u/18894?",
       "gravatar_id": "33117162fff8a9cf50544a604f60c045",
       "url": "https://api.github.com/users/STRd6",
       "html_url": "https://github.com/STRd6",
@@ -197,14 +202,14 @@ window["STRd6/stream:master"]({
     "labels_url": "https://api.github.com/repos/STRd6/stream/labels{/name}",
     "releases_url": "https://api.github.com/repos/STRd6/stream/releases{/id}",
     "created_at": "2013-09-16T17:03:24Z",
-    "updated_at": "2013-11-16T00:28:27Z",
-    "pushed_at": "2013-11-16T00:28:25Z",
+    "updated_at": "2014-02-08T00:57:47Z",
+    "pushed_at": "2014-02-08T00:57:47Z",
     "git_url": "git://github.com/STRd6/stream.git",
     "ssh_url": "git@github.com:STRd6/stream.git",
     "clone_url": "https://github.com/STRd6/stream.git",
     "svn_url": "https://github.com/STRd6/stream",
     "homepage": null,
-    "size": 396,
+    "size": 428,
     "stargazers_count": 3,
     "watchers_count": 3,
     "language": "CoffeeScript",
@@ -227,7 +232,7 @@ window["STRd6/stream:master"]({
     "network_count": 0,
     "subscribers_count": 1,
     "branch": "master",
-    "defaultBranch": "master"
+    "publishBranch": "gh-pages"
   },
   "dependencies": {}
 });
