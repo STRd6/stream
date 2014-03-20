@@ -1,5 +1,2 @@
 entryPoint: "streamatorium"
 version: "0.1.0"
-remoteDependencies: [
-  "http://strd6.github.io/require/v0.2.2.js"
-]
